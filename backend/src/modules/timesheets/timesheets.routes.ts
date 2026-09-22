@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../../config/prisma";
 import { requireAuth } from "../../middleware/auth";
 import { requirePermission } from "../../middleware/requirePermission";
+import { runAutomations } from "../../utils/automations";
 import { HttpError } from "../../utils/HttpError";
 import { PERMISSIONS } from "../../utils/permissions";
 
@@ -106,6 +107,11 @@ async function decide(req: Request, res: Response, approve: boolean) {
     where: { id: entry.id },
     data: { status: approve ? "APPROVED" : "REJECTED", approverId: req.user!.employeeId, decidedAt: new Date() },
   });
+
+  if (approve) {
+    await runAutomations("TIMESHEET_APPROVED", { organizationId: req.user!.organizationId, employeeId: updated.employeeId });
+  }
+
   return res.json(updated);
 }
 

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../../config/prisma";
 import { requireAuth } from "../../middleware/auth";
 import { requirePermission } from "../../middleware/requirePermission";
+import { writeAuditLog } from "../../utils/audit";
 import { PERMISSIONS } from "../../utils/permissions";
 
 const router = Router();
@@ -23,10 +24,22 @@ router.patch("/current", requirePermission(PERMISSIONS.ORG_MANAGE), async (req, 
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
+  const before = await prisma.organization.findUniqueOrThrow({ where: { id: req.user!.organizationId } });
   const organization = await prisma.organization.update({
     where: { id: req.user!.organizationId },
     data: { name: parsed.data.name },
   });
+
+  await writeAuditLog({
+    organizationId: organization.id,
+    actorUserId: req.user!.sub,
+    action: "organization.update",
+    entityType: "Organization",
+    entityId: organization.id,
+    before: { name: before.name },
+    after: { name: organization.name },
+  });
+
   return res.json(organization);
 });
 

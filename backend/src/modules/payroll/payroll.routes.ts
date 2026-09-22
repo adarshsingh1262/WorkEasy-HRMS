@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../../config/prisma";
 import { requireAuth } from "../../middleware/auth";
 import { requirePermission } from "../../middleware/requirePermission";
+import { writeAuditLog } from "../../utils/audit";
 import { HttpError } from "../../utils/HttpError";
 import { PERMISSIONS } from "../../utils/permissions";
 
@@ -103,6 +104,15 @@ router.post("/:id/process", requirePermission(PERMISSIONS.PAYROLL_MANAGE), async
       data: { status: "PROCESSED", processedAt: new Date() },
     });
     return { payslips: created, processedRun };
+  });
+
+  await writeAuditLog({
+    organizationId,
+    actorUserId: req.user!.sub,
+    action: "payroll.process",
+    entityType: "PayrollRun",
+    entityId: run.id,
+    after: { month: run.month, year: run.year, payslipCount: payslips.length },
   });
 
   return res.json({ run: processedRun, payslips });

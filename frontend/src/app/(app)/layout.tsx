@@ -15,6 +15,7 @@ const NAV_GROUPS: { title?: string; items: { href: string; label: string }[] }[]
       { href: "/my-leave", label: "My Leave" },
       { href: "/my-timesheet", label: "My Timesheet" },
       { href: "/my-tasks", label: "My Tasks" },
+      { href: "/goals", label: "My Goals" },
       { href: "/my-payslips", label: "My Payslips" },
     ],
   },
@@ -22,7 +23,6 @@ const NAV_GROUPS: { title?: string; items: { href: string; label: string }[] }[]
     items: [
       { href: "/people", label: "People" },
       { href: "/approvals", label: "Approvals" },
-      { href: "/announcements", label: "Announcements" },
     ],
   },
   {
@@ -31,13 +31,32 @@ const NAV_GROUPS: { title?: string; items: { href: string; label: string }[] }[]
   },
   {
     title: "Talent",
-    items: [{ href: "/onboarding", label: "Onboarding" }],
+    items: [
+      { href: "/onboarding", label: "Onboarding" },
+      { href: "/performance", label: "Performance" },
+    ],
+  },
+  {
+    title: "HR Services",
+    items: [
+      { href: "/helpdesk", label: "Help Desk" },
+      { href: "/announcements", label: "Announcements" },
+      { href: "/hr-guide", label: "HR Guide" },
+    ],
   },
   {
     title: "Payroll",
     items: [{ href: "/payroll", label: "Payroll" }],
   },
-  { items: [{ href: "/settings/organization", label: "Settings" }] },
+  { items: [{ href: "/reports", label: "Reports" }] },
+  { items: [{ href: "/automation", label: "Automation" }] },
+  {
+    title: "Settings",
+    items: [
+      { href: "/settings/organization", label: "Organization" },
+      { href: "/settings/security", label: "Security" },
+    ],
+  },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

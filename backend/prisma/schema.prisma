@@ -32,6 +32,43 @@ enum PayrollRunStatus {
   PROCESSED
 }
 
+enum ReviewCycleStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+enum ReviewStatus {
+  PENDING
+  SELF_SUBMITTED
+  MANAGER_SUBMITTED
+  COMPLETED
+}
+
+enum GoalStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum AutomationTrigger {
+  LEAVE_APPROVED
+  EMPLOYEE_ONBOARDED
+  TIMESHEET_APPROVED
+}
+
+enum AutomationActionType {
+  CREATE_ANNOUNCEMENT
+  ASSIGN_ONBOARDING_TASK
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -55,6 +92,13 @@ model Organization {
   compensationRecords CompensationRecord[]
   payrollRuns         PayrollRun[]
   payslips            Payslip[]
+  reviewCycles        ReviewCycle[]
+  performanceReviews  PerformanceReview[]
+  goals               Goal[]
+  helpDeskTickets     HelpDeskTicket[]
+  automationRules     AutomationRule[]
+  auditLogs           AuditLog[]
+  hrGuideArticles     HrGuideArticle[]
 
   @@map("organizations")
 }
@@ -64,12 +108,15 @@ model User {
   organizationId String
   email          String
   passwordHash   String
+  totpSecret     String?
+  totpEnabled    Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   employee     Employee?
   userRoles    UserRole[]
+  auditLogs    AuditLog[]
 
   @@unique([organizationId, email])
   @@map("users")
@@ -103,6 +150,7 @@ model Employee {
   departmentId   String?
   managerId      String?
   dateOfJoining  DateTime?
+  exitDate       DateTime?      @db.Date
   status         EmployeeStatus @default(ONBOARDING)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -125,6 +173,14 @@ model Employee {
   approvedTimesheets  TimesheetEntry[]     @relation("TimesheetApprover")
   compensationRecords CompensationRecord[]
   payslips            Payslip[]
+
+  performanceReviews     PerformanceReview[] @relation("ReviewSubject")
+  reviewsAsReviewer      PerformanceReview[] @relation("ReviewReviewer")
+  goals                  Goal[]
+  helpDeskTickets        HelpDeskTicket[]    @relation("TicketRequester")
+  assignedTickets        HelpDeskTicket[]    @relation("TicketAssignee")
+  hrGuideArticles        HrGuideArticle[]
+  createdAutomationRules AutomationRule[]
 
   @@unique([organizationId, employeeCode])
   @@map("employees")
@@ -332,6 +388,133 @@ model Payslip {
 
   @@unique([payrollRunId, employeeId])
   @@map("payslips")
+}
+
+model ReviewCycle {
+  id             String            @id @default(uuid())
+  organizationId String
+  name           String
+  startDate      DateTime          @db.Date
+  endDate        DateTime          @db.Date
+  status         ReviewCycleStatus @default(DRAFT)
+  createdAt      DateTime          @default(now())
+
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  reviews      PerformanceReview[]
+  goals        Goal[]
+
+  @@map("review_cycles")
+}
+
+model PerformanceReview {
+  id                String       @id @default(uuid())
+  organizationId    String
+  cycleId           String
+  employeeId        String
+  reviewerId        String?
+  selfAssessment    String?
+  managerAssessment String?
+  rating            Int?
+  status            ReviewStatus @default(PENDING)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  cycle        ReviewCycle  @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation("ReviewSubject", fields: [employeeId], references: [id], onDelete: Cascade)
+  reviewer     Employee?    @relation("ReviewReviewer", fields: [reviewerId], references: [id])
+
+  @@unique([cycleId, employeeId])
+  @@map("performance_reviews")
+}
+
+model Goal {
+  id             String     @id @default(uuid())
+  organizationId String
+  employeeId     String
+  cycleId        String?
+  title          String
+  description    String?
+  status         GoalStatus @default(NOT_STARTED)
+  progress       Int        @default(0)
+  dueDate        DateTime?  @db.Date
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  cycle        ReviewCycle? @relation(fields: [cycleId], references: [id])
+
+  @@map("goals")
+}
+
+model HelpDeskTicket {
+  id             String       @id @default(uuid())
+  organizationId String
+  employeeId     String
+  category       String
+  subject        String
+  description    String
+  status         TicketStatus @default(OPEN)
+  assignedToId   String?
+  createdAt      DateTime     @default(now())
+  resolvedAt     DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation("TicketRequester", fields: [employeeId], references: [id], onDelete: Cascade)
+  assignedTo   Employee?    @relation("TicketAssignee", fields: [assignedToId], references: [id])
+
+  @@map("helpdesk_tickets")
+}
+
+model AutomationRule {
+  id             String               @id @default(uuid())
+  organizationId String
+  createdById    String
+  name           String
+  trigger        AutomationTrigger
+  actionType     AutomationActionType
+  actionConfig   Json
+  enabled        Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    Employee     @relation(fields: [createdById], references: [id])
+
+  @@map("automation_rules")
+}
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  organizationId String
+  actorUserId    String?
+  action         String
+  entityType     String
+  entityId       String?
+  before         Json?
+  after          Json?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor        User?        @relation(fields: [actorUserId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model HrGuideArticle {
+  id             String   @id @default(uuid())
+  organizationId String
+  authorId       String
+  title          String
+  body           String
+  category       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author       Employee     @relation(fields: [authorId], references: [id])
+
+  @@map("hr_guide_articles")
 }
 
 model Role {

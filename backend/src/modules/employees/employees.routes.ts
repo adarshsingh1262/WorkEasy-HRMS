@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "../../config/prisma";
 import { requireAuth } from "../../middleware/auth";
 import { requirePermission } from "../../middleware/requirePermission";
+import { runAutomations } from "../../utils/automations";
 import { PERMISSIONS } from "../../utils/permissions";
 
 const router = Router();
@@ -135,6 +136,8 @@ router.post("/", requirePermission(PERMISSIONS.EMPLOYEE_WRITE), async (req, res)
     return { user, employee };
   });
 
+  await runAutomations("EMPLOYEE_ONBOARDED", { organizationId, employeeId: result.employee.id });
+
   // Temp password returned once so HR can share it out-of-band; a real deployment would email it instead.
   return res.status(201).json({ employee: result.employee, tempPassword });
 });
@@ -162,7 +165,10 @@ router.patch("/:id", requirePermission(PERMISSIONS.EMPLOYEE_WRITE), async (req, 
 
   const updated = await prisma.employee.update({
     where: { id: employee.id },
-    data: parsed.data,
+    data: {
+      ...parsed.data,
+      ...(parsed.data.status === "EXITED" && !employee.exitDate ? { exitDate: new Date() } : {}),
+    },
   });
   return res.json(updated);
 });

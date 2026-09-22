@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../../config/prisma";
 import { requireAuth } from "../../middleware/auth";
 import { requirePermission } from "../../middleware/requirePermission";
+import { writeAuditLog } from "../../utils/audit";
 import { ALL_PERMISSIONS, PERMISSIONS } from "../../utils/permissions";
 
 const router = Router();
@@ -51,6 +52,16 @@ router.post("/", requirePermission(PERMISSIONS.ROLE_MANAGE), async (req, res) =>
       rolePermissions: { createMany: { data: permissions.map((p) => ({ permissionId: p.id })) } },
     },
   });
+
+  await writeAuditLog({
+    organizationId,
+    actorUserId: req.user!.sub,
+    action: "role.create",
+    entityType: "Role",
+    entityId: role.id,
+    after: { name: role.name, permissions: parsed.data.permissions },
+  });
+
   return res.status(201).json(role);
 });
 
@@ -76,6 +87,16 @@ router.post("/assign", requirePermission(PERMISSIONS.ROLE_MANAGE), async (req, r
     create: { userId: user.id, roleId: role.id },
     update: {},
   });
+
+  await writeAuditLog({
+    organizationId,
+    actorUserId: req.user!.sub,
+    action: "role.assign",
+    entityType: "User",
+    entityId: user.id,
+    after: { roleId: role.id, roleName: role.name },
+  });
+
   return res.status(204).send();
 });
 

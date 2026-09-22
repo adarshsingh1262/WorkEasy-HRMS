@@ -1,10 +1,17 @@
 import bcrypt from "bcryptjs";
 import { Router } from "express";
+import { generateSecret as generateTotpSecret, generateURI as generateTotpURI, verify as verifyTotp } from "otplib";
 import { z } from "zod";
 import { prisma } from "../../config/prisma";
 import { requireAuth } from "../../middleware/auth";
 import { loadUserContext } from "../../utils/loadUserContext";
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../../utils/jwt";
+import {
+  signAccessToken,
+  signMfaToken,
+  signRefreshToken,
+  verifyMfaToken,
+  verifyRefreshToken,
+} from "../../utils/jwt";
 import { SYSTEM_ROLES } from "../../utils/permissions";
 
 const router = Router();
@@ -130,6 +137,10 @@ router.post("/login", async (req, res) => {
     return res.status(401).json({ error: "Invalid credentials" });
   }
 
+  if (user.totpEnabled) {
+    return res.json({ mfaRequired: true, mfaToken: signMfaToken(user.id) });
+  }
+
   const { roles, permissions, employeeId } = await loadUserContext(user.id);
   const accessToken = signAccessToken({
     sub: user.id,
@@ -174,7 +185,79 @@ router.get("/me", requireAuth, async (req, res) => {
     employee: user.employee,
     roles,
     permissions,
+    totpEnabled: user.totpEnabled,
   });
+});
+
+router.post("/2fa/setup", requireAuth, async (req, res) => {
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.sub } });
+  const secret = generateTotpSecret();
+  await prisma.user.update({ where: { id: user.id }, data: { totpSecret: secret } });
+
+  const otpauthUrl = generateTotpURI({ issuer: "WorkEasy360 HRMS", label: user.email, secret });
+  return res.json({ secret, otpauthUrl });
+});
+
+const verifySchema = z.object({ token: z.string().min(6).max(6) });
+
+router.post("/2fa/verify", requireAuth, async (req, res) => {
+  const parsed = verifySchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.sub } });
+  if (!user.totpSecret) return res.status(400).json({ error: "Call /2fa/setup first" });
+
+  const result = await verifyTotp({ secret: user.totpSecret, token: parsed.data.token });
+  if (!result.valid) return res.status(400).json({ error: "Invalid code" });
+
+  await prisma.user.update({ where: { id: user.id }, data: { totpEnabled: true } });
+  return res.json({ totpEnabled: true });
+});
+
+const disableSchema = z.object({ password: z.string().min(1) });
+
+router.post("/2fa/disable", requireAuth, async (req, res) => {
+  const parsed = disableSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.sub } });
+  if (!(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
+    return res.status(401).json({ error: "Incorrect password" });
+  }
+
+  await prisma.user.update({ where: { id: user.id }, data: { totpEnabled: false, totpSecret: null } });
+  return res.json({ totpEnabled: false });
+});
+
+const loginVerifySchema = z.object({ mfaToken: z.string().min(1), token: z.string().min(6).max(6) });
+
+router.post("/2fa/login-verify", async (req, res) => {
+  const parsed = loginVerifySchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  let userId: string;
+  try {
+    userId = verifyMfaToken(parsed.data.mfaToken).sub;
+  } catch {
+    return res.status(401).json({ error: "Invalid or expired MFA challenge" });
+  }
+
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  if (!user.totpSecret) return res.status(401).json({ error: "Invalid code" });
+  const result = await verifyTotp({ secret: user.totpSecret, token: parsed.data.token });
+  if (!result.valid) return res.status(401).json({ error: "Invalid code" });
+
+  const { roles, permissions, employeeId } = await loadUserContext(user.id);
+  const accessToken = signAccessToken({
+    sub: user.id,
+    organizationId: user.organizationId,
+    employeeId,
+    roles,
+    permissions,
+  });
+  const refreshToken = signRefreshToken(user.id);
+
+  return res.json({ accessToken, refreshToken });
 });
 
 export default router;

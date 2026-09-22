@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../config/prisma";
 import { requireAuth } from "../../middleware/auth";
+import { runAutomations } from "../../utils/automations";
 import { HttpError } from "../../utils/HttpError";
 import { PERMISSIONS } from "../../utils/permissions";
 import { daysBetweenInclusive } from "../../utils/date";
@@ -153,6 +154,10 @@ async function decide(req: Request, res: Response, approve: boolean) {
 
     return decided;
   });
+
+  if (approve) {
+    await runAutomations("LEAVE_APPROVED", { organizationId: req.user!.organizationId, employeeId: updated.employeeId });
+  }
 
   return res.json(updated);
 }

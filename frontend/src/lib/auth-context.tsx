@@ -4,10 +4,13 @@ import { createContext, useCallback, useContext, useEffect, useState } from "rea
 import { apiFetch, clearTokens, setTokens } from "./api";
 import { CurrentUser, Organization } from "./types";
 
+type LoginResult = { mfaRequired: true; mfaToken: string } | { mfaRequired: false };
+
 interface AuthContextValue {
   user: CurrentUser | null;
   loading: boolean;
-  login: (organizationSlug: string, email: string, password: string) => Promise<void>;
+  login: (organizationSlug: string, email: string, password: string) => Promise<LoginResult>;
+  completeMfaLogin: (mfaToken: string, token: string) => Promise<void>;
   register: (input: {
     organizationName: string;
     organizationSlug: string;
@@ -47,10 +50,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refetchUser]);
 
   const login = useCallback(
-    async (organizationSlug: string, email: string, password: string) => {
-      const data = await apiFetch<{ accessToken: string; refreshToken: string }>("/auth/login", {
+    async (organizationSlug: string, email: string, password: string): Promise<LoginResult> => {
+      const data = await apiFetch<
+        { accessToken: string; refreshToken: string } | { mfaRequired: true; mfaToken: string }
+      >("/auth/login", {
         method: "POST",
         body: JSON.stringify({ organizationSlug, email, password }),
+      });
+      if ("mfaRequired" in data) {
+        return { mfaRequired: true, mfaToken: data.mfaToken };
+      }
+      setTokens(data.accessToken, data.refreshToken);
+      await refetchUser();
+      return { mfaRequired: false };
+    },
+    [refetchUser],
+  );
+
+  const completeMfaLogin = useCallback(
+    async (mfaToken: string, token: string) => {
+      const data = await apiFetch<{ accessToken: string; refreshToken: string }>("/auth/2fa/login-verify", {
+        method: "POST",
+        body: JSON.stringify({ mfaToken, token }),
       });
       setTokens(data.accessToken, data.refreshToken);
       await refetchUser();
@@ -94,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout, hasPermission, refetchUser }}
+      value={{ user, loading, login, completeMfaLogin, register, logout, hasPermission, refetchUser }}
     >
       {children}
     </AuthContext.Provider>

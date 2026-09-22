@@ -35,6 +35,7 @@ export interface CurrentUser {
   employee: Employee | null;
   roles: string[];
   permissions: string[];
+  totpEnabled: boolean;
 }
 
 export interface AttendanceRecord {
@@ -140,4 +141,109 @@ export interface Payslip {
   createdAt: string;
   payrollRun?: { month: number; year: number; status: PayrollRunStatus };
   employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export type ReviewCycleStatus = "DRAFT" | "ACTIVE" | "CLOSED";
+
+export interface ReviewCycle {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: ReviewCycleStatus;
+}
+
+export type ReviewStatus = "PENDING" | "SELF_SUBMITTED" | "MANAGER_SUBMITTED" | "COMPLETED";
+
+export interface PerformanceReview {
+  id: string;
+  cycleId: string;
+  cycle: ReviewCycle;
+  employeeId: string;
+  reviewerId: string | null;
+  selfAssessment: string | null;
+  managerAssessment: string | null;
+  rating: number | null;
+  status: ReviewStatus;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export type GoalStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
+
+export interface Goal {
+  id: string;
+  employeeId: string;
+  title: string;
+  description: string | null;
+  status: GoalStatus;
+  progress: number;
+  dueDate: string | null;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+
+export interface HelpDeskTicket {
+  id: string;
+  category: string;
+  subject: string;
+  description: string;
+  status: TicketStatus;
+  assignedToId: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+  assignedTo?: { firstName: string; lastName: string } | null;
+}
+
+export type AutomationTrigger = "LEAVE_APPROVED" | "EMPLOYEE_ONBOARDED" | "TIMESHEET_APPROVED";
+export type AutomationActionType = "CREATE_ANNOUNCEMENT" | "ASSIGN_ONBOARDING_TASK";
+
+export interface AutomationRule {
+  id: string;
+  name: string;
+  trigger: AutomationTrigger;
+  actionType: AutomationActionType;
+  actionConfig: Record<string, unknown>;
+  enabled: boolean;
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  before: unknown;
+  after: unknown;
+  createdAt: string;
+  actor?: { email: string } | null;
+}
+
+export interface HrGuideArticle {
+  id: string;
+  title: string;
+  body: string;
+  category: string | null;
+  updatedAt: string;
+  author: { firstName: string; lastName: string };
+}
+
+export interface HeadcountReport {
+  total: number;
+  byStatus: { status: EmployeeStatus; count: number }[];
+  byDepartment: { department: string; count: number }[];
+}
+
+export interface AttritionReport {
+  totalExits: number;
+  byMonth: { month: string; count: number }[];
+}
+
+export interface LeaveLiabilityReport {
+  year: number;
+  byLeaveType: { leaveType: string; remainingDays: number; usedDays: number }[];
+}
+
+export interface PayrollCostReport {
+  byRun: { month: number; year: number; grossTotal: number; netTotal: number; employeeCount: number }[];
 }

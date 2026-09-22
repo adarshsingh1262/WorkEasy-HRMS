@@ -7,11 +7,13 @@ import { ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, completeMfaLogin } = useAuth();
   const router = useRouter();
   const [organizationSlug, setOrganizationSlug] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -20,13 +22,54 @@ export default function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await login(organizationSlug, email, password);
+      const result = await login(organizationSlug, email, password);
+      if (result.mfaRequired) {
+        setMfaToken(result.mfaToken);
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function onSubmitMfa(e: FormEvent) {
+    e.preventDefault();
+    if (!mfaToken) return;
+    setError(null);
+    setSubmitting(true);
+    try {
+      await completeMfaLogin(mfaToken, code);
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (mfaToken) {
+    return (
+      <main className="flex flex-1 items-center justify-center p-6">
+        <form onSubmit={onSubmitMfa} className="w-full max-w-sm space-y-4 rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+          <div>
+            <h1 className="text-xl font-semibold">Two-factor authentication</h1>
+            <p className="mt-1 text-sm text-slate-500">Enter the 6-digit code from your authenticator app.</p>
+          </div>
+          <Field label="Code" value={code} onChange={setCode} placeholder="123456" />
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+          >
+            {submitting ? "Verifying…" : "Verify"}
+          </button>
+        </form>
+      </main>
+    );
   }
 
   return (

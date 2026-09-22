@@ -59,4 +59,13 @@ npm run dev                         # http://localhost:3000
 - Payroll: Compensation (HR/Admin set annual CTC per employee, effective-dated), Payroll Processing (create a monthly run, process it to generate payslips from each active employee's current compensation), My Payslips (self view)
   - Payroll deductions use a flat placeholder rate for v0 — real statutory calculations (PF/ESI/TDS) are deferred to v1, see `ARCHITECTURE.md` §10.
 
-See [`ARCHITECTURE.md`](./ARCHITECTURE.md) §8 for the rest of the v0 roadmap (Performance & Goals, Help Desk, Reports, Automation, HR Guide) and §10 for features deferred to v1.
+**Phase 3 — scale features**
+- Talent: Performance (review cycles opened for every active employee; self-assessment, then manager-chain or HR/Admin assessment + rating), My Goals (self-service goal tracking with progress)
+- HR Services: Help Desk (self-raised tickets; HR/Admin triage, assign, resolve), HR Guide (org-wide policy articles, HR/Admin authored)
+- Reports: Headcount (by status/department), Attrition (exits by month), Leave Liability (remaining/used days by leave type), Payroll Cost (gross/net by run) — all read-only aggregations
+- Automation: a lightweight rule engine — `when <trigger> then <action>` rules an HR/Admin can create (triggers: employee onboarded, leave approved, timesheet approved; actions: create an announcement, assign an onboarding task). Dispatches inline from the triggering request, best-effort (a rule failure never breaks the request that fired it)
+- Security: TOTP-based 2FA (self-service setup/disable, enforced at login via a short-lived MFA challenge token), and an audit log for sensitive mutations (organization changes, role creation/assignment, compensation records, payroll processing), viewable under Settings → Security
+
+**Not implemented — SSO (Integrations)**: real Google/Microsoft OAuth login requires an actual OAuth app (client ID/secret) registered in that provider's console, which this environment doesn't have. Rather than ship an unusable stub, this is left out of v0; wiring it up (via Passport.js, per `ARCHITECTURE.md`'s stack) is straightforward once real credentials are available.
+
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) §10 for features deferred to v1.

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "../../config/prisma";
 import { requireAuth } from "../../middleware/auth";
 import { requirePermission } from "../../middleware/requirePermission";
+import { writeAuditLog } from "../../utils/audit";
 import { HttpError } from "../../utils/HttpError";
 import { PERMISSIONS } from "../../utils/permissions";
 
@@ -53,6 +54,16 @@ router.post("/", requirePermission(PERMISSIONS.COMPENSATION_MANAGE), async (req,
       currency: parsed.data.currency,
     },
   });
+
+  await writeAuditLog({
+    organizationId,
+    actorUserId: req.user!.sub,
+    action: "compensation.create",
+    entityType: "CompensationRecord",
+    entityId: record.id,
+    after: { employeeId: record.employeeId, annualCTC: record.annualCTC, effectiveFrom: record.effectiveFrom },
+  });
+
   return res.status(201).json(record);
 });
 
