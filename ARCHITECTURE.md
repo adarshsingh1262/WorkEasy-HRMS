@@ -14,8 +14,8 @@ Multi-tenant SaaS HRMS (Zoho People / Razorpay X-Payroll class product).
 | File storage | S3-compatible (documents, payslips, resumes) |
 | Background jobs | BullMQ (Redis) — payroll runs, attendance regularization, email/notification digests |
 | Search | Postgres full-text initially; Elasticsearch/Meilisearch if directory search scales |
-| Infra | Docker, single monorepo, CI via GitHub Actions, deploy target: any container host (Render/Fly/ECS) |
-| Monorepo tool | Turborepo (apps/web, apps/api, packages/shared-types, packages/ui) |
+| Infra | Docker (per app), CI via GitHub Actions, deploy target: any container host (Render/Fly/ECS) |
+| Repo layout | `frontend/` + `backend/` as two independent apps (see §7) |
 
 ## 2. Multi-Tenancy Model
 
@@ -99,22 +99,23 @@ Updated nav placement: Recruitment and Assets become new top-level sections (pee
 - Rate limiting + brute-force lockout on auth endpoints.
 - GDPR-style data export/delete per employee (needed for enterprise sales later).
 
-## 7. Repo Structure (proposed)
+## 7. Repo Structure
+
+Per your requirement, kept as a simple two-app layout instead of a Turborepo monorepo:
 
 ```
-apps/
-  web/          # Next.js frontend
-  api/          # NestJS backend (modules mirror §4: attendance, leave, payroll, people, ...)
-packages/
-  shared-types/ # DTOs/interfaces shared FE<->BE
-  ui/           # shared design-system components
-prisma/
-  schema.prisma
+frontend/     # Next.js app (TypeScript, Tailwind, shadcn/ui)
+backend/      # NestJS app (modules mirror §4: attendance, leave, payroll, people, ...)
+  prisma/
+    schema.prisma
+README.md
 ```
+
+Shared DTOs/types are duplicated (or published as a small versioned npm package from `backend`) rather than living in a shared workspace package, since there's no monorepo tool tying the two together. `frontend` and `backend` are each independently installable/deployable (`npm install` + `npm run build` in each).
 
 ## 8. Phased Roadmap
 
-- **Phase 0 (foundation):** monorepo scaffold, auth (email/password + JWT), multi-tenant org creation, RBAC skeleton, People module (directory + profile), Settings→Organization.
+- **Phase 0 (foundation):** `frontend`/`backend` scaffold, auth (email/password + JWT), multi-tenant org creation, RBAC skeleton, People module (directory + profile), Settings→Organization.
 - **Phase 1 (self-service core):** My Workspace, Attendance (check-in/out), Leave (types, request, approval via workflow engine), Announcements.
 - **Phase 2 (talent + payroll basics):** Onboarding, Shifts, Timesheets, Compensation structure, Payroll run + Payslips (single country ruleset first).
 - **Phase 3 (scale features):** Performance & Goals, Help Desk, Reports library, Automation rule engine, Integrations (SSO), Security hardening (audit log, 2FA), HR Guide.
@@ -124,4 +125,4 @@ prisma/
 
 ## 9. Immediate Next Step
 
-Scaffold Phase 0: Turborepo + Next.js + NestJS + Prisma + Postgres, auth module, Organization/Employee/Role Prisma models, and the People directory as the first working vertical slice.
+Scaffold Phase 0: `frontend/` (Next.js) + `backend/` (NestJS + Prisma + Postgres), auth module, Organization/Employee/Role Prisma models, and the People directory as the first working vertical slice.
