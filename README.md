@@ -36,8 +36,9 @@ cp .env.local.example .env.local   # points at http://localhost:4000/api by defa
 npm run dev                         # http://localhost:3000
 ```
 
-## What's implemented (v0, Phase 0)
+## What's implemented (v0)
 
+**Phase 0 — foundation**
 - Multi-tenant org registration (creates Organization + Admin user + Employee)
 - JWT auth (access + refresh tokens), login, session restore
 - RBAC: system default roles (Admin, HR, Manager, Employee) with per-permission API guards
@@ -45,4 +46,10 @@ npm run dev                         # http://localhost:3000
 - My Workspace: My Profile
 - Settings: Organization profile
 
-See [`ARCHITECTURE.md`](./ARCHITECTURE.md) §8 for the rest of the v0 roadmap (Attendance, Leave, Onboarding, Payroll, etc.) and §10 for features deferred to v1.
+**Phase 1 — self-service core**
+- My Workspace: My Attendance (check-in/check-out, history)
+- My Workspace: My Leave (leave types, request, cancel own pending request)
+- Leave Approvals: manager-chain approval (a request routes to the employee's manager) plus org-wide approval for HR/Admin; approving increments a per-employee/per-leave-type/per-year balance
+- Announcements: publish (HR/Admin) and view (everyone), surfaced on the Home dashboard
+
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) §8 for the rest of the v0 roadmap (Onboarding, Shifts, Timesheets, Payroll, etc.) and §10 for features deferred to v1.

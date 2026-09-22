@@ -14,6 +14,13 @@ enum EmployeeStatus {
   EXITED
 }
 
+enum LeaveRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -21,21 +28,26 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users       User[]
-  departments Department[]
-  employees   Employee[]
-  roles       Role[]
+  users             User[]
+  departments       Department[]
+  employees         Employee[]
+  roles             Role[]
+  attendanceRecords AttendanceRecord[]
+  leaveTypes        LeaveType[]
+  leaveBalances     LeaveBalance[]
+  leaveRequests     LeaveRequest[]
+  announcements     Announcement[]
 
   @@map("organizations")
 }
 
 model User {
-  id           String   @id @default(uuid())
+  id             String   @id @default(uuid())
   organizationId String
-  email        String
-  passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  email          String
+  passwordHash   String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   employee     Employee?
@@ -77,14 +89,108 @@ model Employee {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  department   Department?   @relation(fields: [departmentId], references: [id])
-  manager      Employee?     @relation("ManagerHierarchy", fields: [managerId], references: [id])
+  organization  Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department    Department?  @relation(fields: [departmentId], references: [id])
+  manager       Employee?    @relation("ManagerHierarchy", fields: [managerId], references: [id])
   directReports Employee[]   @relation("ManagerHierarchy")
+
+  attendanceRecords AttendanceRecord[]
+  leaveRequests     LeaveRequest[]     @relation("LeaveRequester")
+  approvedRequests  LeaveRequest[]     @relation("LeaveApprover")
+  leaveBalances     LeaveBalance[]
+  announcements     Announcement[]
 
   @@unique([organizationId, employeeCode])
   @@map("employees")
+}
+
+model AttendanceRecord {
+  id             String    @id @default(uuid())
+  organizationId String
+  employeeId     String
+  date           DateTime  @db.Date
+  checkInAt      DateTime?
+  checkOutAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date])
+  @@map("attendance_records")
+}
+
+model LeaveType {
+  id                 String   @id @default(uuid())
+  organizationId     String
+  name               String
+  defaultDaysPerYear Int      @default(0)
+  createdAt          DateTime @default(now())
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  leaveRequests LeaveRequest[]
+  leaveBalances LeaveBalance[]
+
+  @@unique([organizationId, name])
+  @@map("leave_types")
+}
+
+model LeaveBalance {
+  id             String @id @default(uuid())
+  organizationId String
+  employeeId     String
+  leaveTypeId    String
+  year           Int
+  allocatedDays  Float  @default(0)
+  usedDays       Float  @default(0)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType    LeaveType    @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, leaveTypeId, year])
+  @@map("leave_balances")
+}
+
+model LeaveRequest {
+  id             String             @id @default(uuid())
+  organizationId String
+  employeeId     String
+  leaveTypeId    String
+  startDate      DateTime           @db.Date
+  endDate        DateTime           @db.Date
+  days           Float
+  reason         String?
+  status         LeaveRequestStatus @default(PENDING)
+  approverId     String?
+  decisionNote   String?
+  decidedAt      DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation("LeaveRequester", fields: [employeeId], references: [id], onDelete: Cascade)
+  approver     Employee?    @relation("LeaveApprover", fields: [approverId], references: [id])
+  leaveType    LeaveType    @relation(fields: [leaveTypeId], references: [id])
+
+  @@map("leave_requests")
+}
+
+model Announcement {
+  id             String   @id @default(uuid())
+  organizationId String
+  authorId       String
+  title          String
+  body           String
+  publishedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  author       Employee     @relation(fields: [authorId], references: [id])
+
+  @@map("announcements")
 }
 
 model Role {
@@ -103,8 +209,8 @@ model Role {
 }
 
 model Permission {
-  id          String @id @default(uuid())
-  key         String @unique
+  id          String  @id @default(uuid())
+  key         String  @unique
   description String?
 
   rolePermissions RolePermission[]

@@ -9,6 +9,12 @@ import { SYSTEM_ROLES } from "../../utils/permissions";
 
 const router = Router();
 
+const DEFAULT_LEAVE_TYPES = [
+  { name: "Casual Leave", defaultDaysPerYear: 12 },
+  { name: "Sick Leave", defaultDaysPerYear: 8 },
+  { name: "Earned Leave", defaultDaysPerYear: 15 },
+];
+
 const registerSchema = z.object({
   organizationName: z.string().min(2),
   organizationSlug: z
@@ -73,6 +79,10 @@ router.post("/register", async (req, res) => {
         status: "ACTIVE",
         dateOfJoining: new Date(),
       },
+    });
+
+    await tx.leaveType.createMany({
+      data: DEFAULT_LEAVE_TYPES.map((lt) => ({ organizationId: organization.id, ...lt })),
     });
 
     return { organization, user, employee };

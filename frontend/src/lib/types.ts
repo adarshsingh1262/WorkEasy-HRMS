@@ -36,3 +36,42 @@ export interface CurrentUser {
   roles: string[];
   permissions: string[];
 }
+
+export interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  date: string;
+  checkInAt: string | null;
+  checkOutAt: string | null;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export interface LeaveType {
+  id: string;
+  name: string;
+  defaultDaysPerYear: number;
+}
+
+export type LeaveRequestStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+
+export interface LeaveRequest {
+  id: string;
+  employeeId: string;
+  leaveTypeId: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string | null;
+  status: LeaveRequestStatus;
+  decisionNote: string | null;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  publishedAt: string;
+  author: { firstName: string; lastName: string };
+}
