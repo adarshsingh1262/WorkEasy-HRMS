@@ -88,7 +88,25 @@ router.post("/:id/process", requirePermission(PERMISSIONS.PAYROLL_MANAGE), async
       if (!compensation) continue; // no compensation on file yet — skipped, not paid
 
       const grossPay = compensation.monthlyGross;
-      const deductions = Math.round(grossPay * PLACEHOLDER_DEDUCTION_RATE * 100) / 100;
+      const statutoryDeduction = Math.round(grossPay * PLACEHOLDER_DEDUCTION_RATE * 100) / 100;
+
+      // Auto-deduct active loan EMIs, closing loans that reach zero balance.
+      const activeLoans = await tx.loanRequest.findMany({
+        where: { employeeId: employee.id, status: "ACTIVE" },
+      });
+      let loanDeduction = 0;
+      for (const loan of activeLoans) {
+        const installment = Math.min(loan.monthlyDeduction ?? 0, loan.remainingAmount ?? 0);
+        if (installment <= 0) continue;
+        loanDeduction += installment;
+        const remaining = Math.round(((loan.remainingAmount ?? 0) - installment) * 100) / 100;
+        await tx.loanRequest.update({
+          where: { id: loan.id },
+          data: { remainingAmount: remaining, status: remaining <= 0 ? "CLOSED" : "ACTIVE" },
+        });
+      }
+
+      const deductions = Math.round((statutoryDeduction + loanDeduction) * 100) / 100;
       const netPay = Math.round((grossPay - deductions) * 100) / 100;
 
       const payslip = await tx.payslip.upsert({

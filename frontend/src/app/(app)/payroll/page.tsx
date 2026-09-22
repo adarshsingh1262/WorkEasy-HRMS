@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { apiFetch, ApiError } from "@/lib/api";
-import { Employee, PayrollRun, Payslip } from "@/lib/types";
+import { Employee, ExpenseClaim, LoanRequest, PayrollRun, Payslip } from "@/lib/types";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -12,6 +12,8 @@ const MONTH_NAMES = [
 export default function PayrollPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [runs, setRuns] = useState<PayrollRun[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseClaim[]>([]);
+  const [loans, setLoans] = useState<LoanRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [payslipsByRun, setPayslipsByRun] = useState<Record<string, Payslip[]>>({});
@@ -19,15 +21,24 @@ export default function PayrollPage() {
   async function load() {
     setLoading(true);
     try {
-      const [emps, r] = await Promise.all([
+      const [emps, r, exp, ln] = await Promise.all([
         apiFetch<Employee[]>("/employees"),
         apiFetch<PayrollRun[]>("/payroll"),
+        apiFetch<ExpenseClaim[]>("/expenses"),
+        apiFetch<LoanRequest[]>("/loans"),
       ]);
       setEmployees(emps);
       setRuns(r);
+      setExpenses(exp);
+      setLoans(ln);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function markReimbursed(id: string) {
+    await apiFetch(`/expenses/${id}/mark-reimbursed`, { method: "POST" });
+    load();
   }
 
   useEffect(() => {
@@ -114,6 +125,84 @@ export default function PayrollPage() {
             {runs.length === 0 && <p className="text-sm text-slate-500">No payroll runs yet.</p>}
           </div>
         )}
+      </div>
+
+      <div>
+        <h2 className="mb-2 text-sm font-medium text-slate-500">Expense claims</h2>
+        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-left text-slate-500">
+              <tr>
+                <th className="px-4 py-2 font-medium">Employee</th>
+                <th className="px-4 py-2 font-medium">Category</th>
+                <th className="px-4 py-2 font-medium">Amount</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+                <th className="px-4 py-2 font-medium"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {expenses.map((e) => (
+                <tr key={e.id}>
+                  <td className="px-4 py-2">
+                    {e.employee?.firstName} {e.employee?.lastName}
+                  </td>
+                  <td className="px-4 py-2 text-slate-500">{e.category}</td>
+                  <td className="px-4 py-2 text-slate-500">₹{e.amount.toLocaleString()}</td>
+                  <td className="px-4 py-2 text-slate-500">{e.status}</td>
+                  <td className="px-4 py-2 text-right">
+                    {e.status === "APPROVED" && (
+                      <button onClick={() => markReimbursed(e.id)} className="text-xs font-medium text-slate-500 hover:underline">
+                        Mark reimbursed
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {expenses.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-4 py-6 text-center text-slate-500">
+                    No expense claims yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <h2 className="mb-2 text-sm font-medium text-slate-500">Loans</h2>
+        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-left text-slate-500">
+              <tr>
+                <th className="px-4 py-2 font-medium">Employee</th>
+                <th className="px-4 py-2 font-medium">Amount</th>
+                <th className="px-4 py-2 font-medium">Remaining</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {loans.map((l) => (
+                <tr key={l.id}>
+                  <td className="px-4 py-2">
+                    {l.employee?.firstName} {l.employee?.lastName}
+                  </td>
+                  <td className="px-4 py-2 text-slate-500">₹{l.amount.toLocaleString()}</td>
+                  <td className="px-4 py-2 text-slate-500">{l.remainingAmount != null ? `₹${l.remainingAmount.toLocaleString()}` : "—"}</td>
+                  <td className="px-4 py-2 text-slate-500">{l.status}</td>
+                </tr>
+              ))}
+              {loans.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-4 py-6 text-center text-slate-500">
+                    No loan requests yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

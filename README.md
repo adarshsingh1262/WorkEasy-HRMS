@@ -68,4 +68,16 @@ npm run dev                         # http://localhost:3000
 
 **Not implemented — SSO (Integrations)**: real Google/Microsoft OAuth login requires an actual OAuth app (client ID/secret) registered in that provider's console, which this environment doesn't have. Rather than ship an unusable stub, this is left out of v0; wiring it up (via Passport.js, per `ARCHITECTURE.md`'s stack) is straightforward once real credentials are available.
 
-See [`ARCHITECTURE.md`](./ARCHITECTURE.md) §10 for features deferred to v1.
+v0 (Phases 0–3) is feature-complete per `ARCHITECTURE.md`'s roadmap.
+
+## What's implemented (v1)
+
+**Phase 4 — talent acquisition & spend**
+- Talent: Recruitment (job postings; candidate pipeline with stages APPLIED→SCREENING→INTERVIEW→OFFER→HIRED/REJECTED; interview scheduling + feedback/rating; "Hire" converts a candidate straight into a real Employee — same onboarding checklist and EMPLOYEE_ONBOARDED automation as adding one directly)
+- My Workspace: My Expenses (submit a claim; manager-chain or HR/Admin approval on the Approvals page; HR/Admin marks reimbursed from Payroll)
+- Assets: company asset inventory (HR/Admin add/assign/return/retire); My Assets (self view of what's assigned to you)
+- My Workspace: My Loans (request an amount + EMI term; manager-chain or HR/Admin approval activates it). Approved loans auto-deduct their monthly EMI in every payroll run alongside the statutory placeholder, closing automatically once the balance reaches zero
+
+**Not implemented — e-Signature**: same reasoning as SSO above — real e-signing needs a provider (DocuSign/Zoho Sign-class) account and API keys this environment doesn't have.
+
+See [`ARCHITECTURE.md`](./ARCHITECTURE.md) §10 for the rest of v1 (Benefits, LMS, Succession Planning, Grievance, Statutory Compliance, Mobile App, HR Analytics, Public API, AI HR Assistant).

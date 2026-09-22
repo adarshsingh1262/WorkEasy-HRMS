@@ -17,6 +17,9 @@ const NAV_GROUPS: { title?: string; items: { href: string; label: string }[] }[]
       { href: "/my-tasks", label: "My Tasks" },
       { href: "/goals", label: "My Goals" },
       { href: "/my-payslips", label: "My Payslips" },
+      { href: "/my-expenses", label: "My Expenses" },
+      { href: "/my-loans", label: "My Loans" },
+      { href: "/my-assets", label: "My Assets" },
     ],
   },
   {
@@ -34,8 +37,10 @@ const NAV_GROUPS: { title?: string; items: { href: string; label: string }[] }[]
     items: [
       { href: "/onboarding", label: "Onboarding" },
       { href: "/performance", label: "Performance" },
+      { href: "/recruitment", label: "Recruitment" },
     ],
   },
+  { items: [{ href: "/assets", label: "Assets" }] },
   {
     title: "HR Services",
     items: [

@@ -247,3 +247,82 @@ export interface LeaveLiabilityReport {
 export interface PayrollCostReport {
   byRun: { month: number; year: number; grossTotal: number; netTotal: number; employeeCount: number }[];
 }
+
+export type JobPostingStatus = "OPEN" | "CLOSED";
+
+export interface JobPosting {
+  id: string;
+  title: string;
+  description: string;
+  departmentId: string | null;
+  department?: { name: string } | null;
+  status: JobPostingStatus;
+  _count?: { candidates: number };
+}
+
+export type CandidateStage = "APPLIED" | "SCREENING" | "INTERVIEW" | "OFFER" | "HIRED" | "REJECTED";
+
+export interface Interview {
+  id: string;
+  candidateId: string;
+  interviewerId: string;
+  scheduledAt: string;
+  feedback: string | null;
+  rating: number | null;
+  candidate?: { firstName: string; lastName: string; jobPosting: { title: string } };
+}
+
+export interface Candidate {
+  id: string;
+  jobPostingId: string;
+  jobPosting?: { title: string };
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  source: string | null;
+  stage: CandidateStage;
+  notes: string | null;
+  hiredEmployeeId: string | null;
+  interviews?: Interview[];
+}
+
+export type ExpenseStatus = "PENDING" | "APPROVED" | "REJECTED" | "REIMBURSED";
+
+export interface ExpenseClaim {
+  id: string;
+  employeeId: string;
+  category: string;
+  amount: number;
+  currency: string;
+  expenseDate: string;
+  description: string | null;
+  status: ExpenseStatus;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export type AssetStatus = "AVAILABLE" | "ASSIGNED" | "RETIRED";
+
+export interface Asset {
+  id: string;
+  name: string;
+  category: string;
+  serialNumber: string | null;
+  status: AssetStatus;
+  assignedToId: string | null;
+  assignedTo?: { firstName: string; lastName: string; employeeCode: string } | null;
+}
+
+export type LoanStatus = "PENDING" | "APPROVED" | "REJECTED" | "ACTIVE" | "CLOSED";
+
+export interface LoanRequest {
+  id: string;
+  employeeId: string;
+  amount: number;
+  reason: string | null;
+  emiMonths: number;
+  monthlyDeduction: number | null;
+  remainingAmount: number | null;
+  status: LoanStatus;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}

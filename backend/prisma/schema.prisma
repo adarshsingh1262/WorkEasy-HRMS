@@ -69,6 +69,41 @@ enum AutomationActionType {
   ASSIGN_ONBOARDING_TASK
 }
 
+enum JobPostingStatus {
+  OPEN
+  CLOSED
+}
+
+enum CandidateStage {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFER
+  HIRED
+  REJECTED
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REIMBURSED
+}
+
+enum AssetStatus {
+  AVAILABLE
+  ASSIGNED
+  RETIRED
+}
+
+enum LoanStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ACTIVE
+  CLOSED
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -99,6 +134,12 @@ model Organization {
   automationRules     AutomationRule[]
   auditLogs           AuditLog[]
   hrGuideArticles     HrGuideArticle[]
+  jobPostings         JobPosting[]
+  candidates          Candidate[]
+  interviews          Interview[]
+  expenseClaims       ExpenseClaim[]
+  assets              Asset[]
+  loanRequests        LoanRequest[]
 
   @@map("organizations")
 }
@@ -133,6 +174,7 @@ model Department {
   parent       Department?  @relation("DepartmentHierarchy", fields: [parentId], references: [id])
   children     Department[] @relation("DepartmentHierarchy")
   employees    Employee[]
+  jobPostings  JobPosting[]
 
   @@unique([organizationId, name])
   @@map("departments")
@@ -181,6 +223,15 @@ model Employee {
   assignedTickets        HelpDeskTicket[]    @relation("TicketAssignee")
   hrGuideArticles        HrGuideArticle[]
   createdAutomationRules AutomationRule[]
+
+  postedJobPostings  JobPosting[]   @relation("JobPostingPoster")
+  interviewsAsPanel  Interview[]    @relation("InterviewInterviewer")
+  expenseClaims      ExpenseClaim[] @relation("ExpenseOwner")
+  approvedExpenses   ExpenseClaim[] @relation("ExpenseApprover")
+  assignedAssets     Asset[]
+  loanRequests       LoanRequest[]  @relation("LoanOwner")
+  approvedLoans      LoanRequest[]  @relation("LoanApprover")
+  hiredFromCandidate Candidate?     @relation("CandidateHired")
 
   @@unique([organizationId, employeeCode])
   @@map("employees")
@@ -515,6 +566,127 @@ model HrGuideArticle {
   author       Employee     @relation(fields: [authorId], references: [id])
 
   @@map("hr_guide_articles")
+}
+
+model JobPosting {
+  id             String           @id @default(uuid())
+  organizationId String
+  postedById     String
+  title          String
+  departmentId   String?
+  description    String
+  status         JobPostingStatus @default(OPEN)
+  createdAt      DateTime         @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  postedBy     Employee     @relation("JobPostingPoster", fields: [postedById], references: [id])
+  department   Department?  @relation(fields: [departmentId], references: [id])
+  candidates   Candidate[]
+
+  @@map("job_postings")
+}
+
+model Candidate {
+  id              String         @id @default(uuid())
+  organizationId  String
+  jobPostingId    String
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  source          String?
+  stage           CandidateStage @default(APPLIED)
+  notes           String?
+  hiredEmployeeId String?        @unique
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  organization  Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  jobPosting    JobPosting   @relation(fields: [jobPostingId], references: [id], onDelete: Cascade)
+  interviews    Interview[]
+  hiredEmployee Employee?    @relation("CandidateHired", fields: [hiredEmployeeId], references: [id])
+
+  @@map("candidates")
+}
+
+model Interview {
+  id             String   @id @default(uuid())
+  organizationId String
+  candidateId    String
+  interviewerId  String
+  scheduledAt    DateTime
+  feedback       String?
+  rating         Int?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  candidate    Candidate    @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  interviewer  Employee     @relation("InterviewInterviewer", fields: [interviewerId], references: [id])
+
+  @@map("interviews")
+}
+
+model ExpenseClaim {
+  id             String        @id @default(uuid())
+  organizationId String
+  employeeId     String
+  category       String
+  amount         Float
+  currency       String        @default("INR")
+  expenseDate    DateTime      @db.Date
+  description    String?
+  status         ExpenseStatus @default(PENDING)
+  approverId     String?
+  decisionNote   String?
+  decidedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation("ExpenseOwner", fields: [employeeId], references: [id], onDelete: Cascade)
+  approver     Employee?    @relation("ExpenseApprover", fields: [approverId], references: [id])
+
+  @@map("expense_claims")
+}
+
+model Asset {
+  id             String      @id @default(uuid())
+  organizationId String
+  name           String
+  category       String
+  serialNumber   String?
+  status         AssetStatus @default(AVAILABLE)
+  assignedToId   String?
+  assignedAt     DateTime?
+  createdAt      DateTime    @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  assignedTo   Employee?    @relation(fields: [assignedToId], references: [id])
+
+  @@map("assets")
+}
+
+model LoanRequest {
+  id               String     @id @default(uuid())
+  organizationId   String
+  employeeId       String
+  amount           Float
+  reason           String?
+  emiMonths        Int
+  monthlyDeduction Float?
+  remainingAmount  Float?
+  status           LoanStatus @default(PENDING)
+  approverId       String?
+  decisionNote     String?
+  decidedAt        DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation("LoanOwner", fields: [employeeId], references: [id], onDelete: Cascade)
+  approver     Employee?    @relation("LoanApprover", fields: [approverId], references: [id])
+
+  @@map("loan_requests")
 }
 
 model Role {

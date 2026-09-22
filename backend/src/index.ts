@@ -6,6 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { errorHandler } from "./middleware/errorHandler";
 import announcementsRoutes from "./modules/announcements/announcements.routes";
+import assetsRoutes from "./modules/assets/assets.routes";
 import attendanceRoutes from "./modules/attendance/attendance.routes";
 import auditRoutes from "./modules/audit/audit.routes";
 import authRoutes from "./modules/auth/auth.routes";
@@ -13,15 +14,18 @@ import automationRulesRoutes from "./modules/automationRules/automationRules.rou
 import compensationRoutes from "./modules/compensation/compensation.routes";
 import departmentsRoutes from "./modules/departments/departments.routes";
 import employeesRoutes from "./modules/employees/employees.routes";
+import expensesRoutes from "./modules/expenses/expenses.routes";
 import goalsRoutes from "./modules/goals/goals.routes";
 import helpdeskRoutes from "./modules/helpdesk/helpdesk.routes";
 import hrGuideRoutes from "./modules/hrGuide/hrGuide.routes";
 import leaveRequestsRoutes from "./modules/leaveRequests/leaveRequests.routes";
 import leaveTypesRoutes from "./modules/leaveTypes/leaveTypes.routes";
+import loansRoutes from "./modules/loans/loans.routes";
 import onboardingRoutes from "./modules/onboarding/onboarding.routes";
 import organizationsRoutes from "./modules/organizations/organizations.routes";
 import payrollRoutes from "./modules/payroll/payroll.routes";
 import performanceRoutes from "./modules/performance/performance.routes";
+import recruitmentRoutes from "./modules/recruitment/recruitment.routes";
 import reportsRoutes from "./modules/reports/reports.routes";
 import rolesRoutes from "./modules/roles/roles.routes";
 import shiftsRoutes from "./modules/shifts/shifts.routes";
@@ -58,6 +62,10 @@ app.use("/api/automation-rules", automationRulesRoutes);
 app.use("/api/audit-logs", auditRoutes);
 app.use("/api/hr-guide", hrGuideRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/recruitment", recruitmentRoutes);
+app.use("/api/expenses", expensesRoutes);
+app.use("/api/assets", assetsRoutes);
+app.use("/api/loans", loansRoutes);
 
 app.use(errorHandler);
 

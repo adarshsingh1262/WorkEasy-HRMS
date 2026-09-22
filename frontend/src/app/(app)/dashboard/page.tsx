@@ -35,6 +35,9 @@ export default function DashboardPage() {
         <Card title="My Tasks" description="Your onboarding checklist." href="/my-tasks" />
         <Card title="My Payslips" description="View your salary payslips." href="/my-payslips" />
         <Card title="My Goals" description="Track your goals and progress." href="/goals" />
+        <Card title="My Expenses" description="Submit and track expense claims." href="/my-expenses" />
+        <Card title="My Loans" description="Request a loan and track EMIs." href="/my-loans" />
+        <Card title="Recruitment" description="Manage job postings and candidates." href="/recruitment" />
         <Card title="Employee Directory" description="Browse everyone in your organization." href="/people" />
         <Card title="Approvals" description="Review pending leave and timesheet requests." href="/approvals" />
         <Card title="Help Desk" description="Raise or track a support ticket." href="/helpdesk" />
