@@ -21,6 +21,17 @@ enum LeaveRequestStatus {
   CANCELLED
 }
 
+enum TimesheetStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PayrollRunStatus {
+  DRAFT
+  PROCESSED
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -28,15 +39,22 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users             User[]
-  departments       Department[]
-  employees         Employee[]
-  roles             Role[]
-  attendanceRecords AttendanceRecord[]
-  leaveTypes        LeaveType[]
-  leaveBalances     LeaveBalance[]
-  leaveRequests     LeaveRequest[]
-  announcements     Announcement[]
+  users               User[]
+  departments         Department[]
+  employees           Employee[]
+  roles               Role[]
+  attendanceRecords   AttendanceRecord[]
+  leaveTypes          LeaveType[]
+  leaveBalances       LeaveBalance[]
+  leaveRequests       LeaveRequest[]
+  announcements       Announcement[]
+  onboardingTasks     OnboardingTask[]
+  shiftTemplates      ShiftTemplate[]
+  shiftAssignments    ShiftAssignment[]
+  timesheetEntries    TimesheetEntry[]
+  compensationRecords CompensationRecord[]
+  payrollRuns         PayrollRun[]
+  payslips            Payslip[]
 
   @@map("organizations")
 }
@@ -100,6 +118,13 @@ model Employee {
   approvedRequests  LeaveRequest[]     @relation("LeaveApprover")
   leaveBalances     LeaveBalance[]
   announcements     Announcement[]
+
+  onboardingTasks     OnboardingTask[]
+  shiftAssignment     ShiftAssignment?
+  timesheetEntries    TimesheetEntry[]     @relation("TimesheetOwner")
+  approvedTimesheets  TimesheetEntry[]     @relation("TimesheetApprover")
+  compensationRecords CompensationRecord[]
+  payslips            Payslip[]
 
   @@unique([organizationId, employeeCode])
   @@map("employees")
@@ -191,6 +216,122 @@ model Announcement {
   author       Employee     @relation(fields: [authorId], references: [id])
 
   @@map("announcements")
+}
+
+model OnboardingTask {
+  id             String    @id @default(uuid())
+  organizationId String
+  employeeId     String
+  title          String
+  done           Boolean   @default(false)
+  dueDate        DateTime? @db.Date
+  createdAt      DateTime  @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("onboarding_tasks")
+}
+
+model ShiftTemplate {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  startTime      String
+  endTime        String
+  createdAt      DateTime @default(now())
+
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  shiftAssignments ShiftAssignment[]
+
+  @@unique([organizationId, name])
+  @@map("shift_templates")
+}
+
+model ShiftAssignment {
+  id              String   @id @default(uuid())
+  organizationId  String
+  employeeId      String   @unique
+  shiftTemplateId String
+  effectiveFrom   DateTime @db.Date
+  updatedAt       DateTime @updatedAt
+
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee      Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  shiftTemplate ShiftTemplate @relation(fields: [shiftTemplateId], references: [id])
+
+  @@map("shift_assignments")
+}
+
+model TimesheetEntry {
+  id             String          @id @default(uuid())
+  organizationId String
+  employeeId     String
+  date           DateTime        @db.Date
+  hours          Float
+  task           String?
+  status         TimesheetStatus @default(PENDING)
+  approverId     String?
+  decidedAt      DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation("TimesheetOwner", fields: [employeeId], references: [id], onDelete: Cascade)
+  approver     Employee?    @relation("TimesheetApprover", fields: [approverId], references: [id])
+
+  @@unique([employeeId, date])
+  @@map("timesheet_entries")
+}
+
+model CompensationRecord {
+  id             String   @id @default(uuid())
+  organizationId String
+  employeeId     String
+  effectiveFrom  DateTime @db.Date
+  annualCTC      Float
+  monthlyGross   Float
+  currency       String   @default("INR")
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("compensation_records")
+}
+
+model PayrollRun {
+  id             String           @id @default(uuid())
+  organizationId String
+  month          Int
+  year           Int
+  status         PayrollRunStatus @default(DRAFT)
+  processedAt    DateTime?
+  createdAt      DateTime         @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  payslips     Payslip[]
+
+  @@unique([organizationId, month, year])
+  @@map("payroll_runs")
+}
+
+model Payslip {
+  id             String   @id @default(uuid())
+  organizationId String
+  payrollRunId   String
+  employeeId     String
+  grossPay       Float
+  deductions     Float
+  netPay         Float
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  payrollRun   PayrollRun   @relation(fields: [payrollRunId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([payrollRunId, employeeId])
+  @@map("payslips")
 }
 
 model Role {

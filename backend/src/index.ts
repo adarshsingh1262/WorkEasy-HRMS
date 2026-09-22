@@ -8,12 +8,17 @@ import { errorHandler } from "./middleware/errorHandler";
 import announcementsRoutes from "./modules/announcements/announcements.routes";
 import attendanceRoutes from "./modules/attendance/attendance.routes";
 import authRoutes from "./modules/auth/auth.routes";
+import compensationRoutes from "./modules/compensation/compensation.routes";
 import departmentsRoutes from "./modules/departments/departments.routes";
 import employeesRoutes from "./modules/employees/employees.routes";
 import leaveRequestsRoutes from "./modules/leaveRequests/leaveRequests.routes";
 import leaveTypesRoutes from "./modules/leaveTypes/leaveTypes.routes";
+import onboardingRoutes from "./modules/onboarding/onboarding.routes";
 import organizationsRoutes from "./modules/organizations/organizations.routes";
+import payrollRoutes from "./modules/payroll/payroll.routes";
 import rolesRoutes from "./modules/roles/roles.routes";
+import shiftsRoutes from "./modules/shifts/shifts.routes";
+import timesheetsRoutes from "./modules/timesheets/timesheets.routes";
 import { seedPermissions } from "./utils/seedPermissions";
 
 const app = express();
@@ -34,6 +39,11 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/leave-types", leaveTypesRoutes);
 app.use("/api/leave-requests", leaveRequestsRoutes);
 app.use("/api/announcements", announcementsRoutes);
+app.use("/api/onboarding", onboardingRoutes);
+app.use("/api/shifts", shiftsRoutes);
+app.use("/api/timesheets", timesheetsRoutes);
+app.use("/api/compensation", compensationRoutes);
+app.use("/api/payroll", payrollRoutes);
 
 app.use(errorHandler);
 

@@ -31,8 +31,11 @@ export default function DashboardPage() {
         <Card title="My Profile" description="View and manage your personal details." href="/my-profile" />
         <Card title="My Attendance" description="Check in, check out, and view your history." href="/my-attendance" />
         <Card title="My Leave" description="Request leave and track approvals." href="/my-leave" />
+        <Card title="My Timesheet" description="Log hours and track approval status." href="/my-timesheet" />
+        <Card title="My Tasks" description="Your onboarding checklist." href="/my-tasks" />
+        <Card title="My Payslips" description="View your salary payslips." href="/my-payslips" />
         <Card title="Employee Directory" description="Browse everyone in your organization." href="/people" />
-        <Card title="Leave Approvals" description="Review pending requests from your team." href="/leave-approvals" />
+        <Card title="Approvals" description="Review pending leave and timesheet requests." href="/approvals" />
         <Card title="Organization Settings" description="Manage your organization profile." href="/settings/organization" />
       </div>
 

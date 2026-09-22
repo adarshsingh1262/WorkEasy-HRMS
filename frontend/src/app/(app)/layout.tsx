@@ -13,14 +13,29 @@ const NAV_GROUPS: { title?: string; items: { href: string; label: string }[] }[]
       { href: "/my-profile", label: "My Profile" },
       { href: "/my-attendance", label: "My Attendance" },
       { href: "/my-leave", label: "My Leave" },
+      { href: "/my-timesheet", label: "My Timesheet" },
+      { href: "/my-tasks", label: "My Tasks" },
+      { href: "/my-payslips", label: "My Payslips" },
     ],
   },
   {
     items: [
       { href: "/people", label: "People" },
-      { href: "/leave-approvals", label: "Leave Approvals" },
+      { href: "/approvals", label: "Approvals" },
       { href: "/announcements", label: "Announcements" },
     ],
+  },
+  {
+    title: "Time & Attendance",
+    items: [{ href: "/shifts", label: "Shifts" }],
+  },
+  {
+    title: "Talent",
+    items: [{ href: "/onboarding", label: "Onboarding" }],
+  },
+  {
+    title: "Payroll",
+    items: [{ href: "/payroll", label: "Payroll" }],
   },
   { items: [{ href: "/settings/organization", label: "Settings" }] },
 ];

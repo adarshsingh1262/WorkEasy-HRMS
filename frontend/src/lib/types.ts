@@ -75,3 +75,69 @@ export interface Announcement {
   publishedAt: string;
   author: { firstName: string; lastName: string };
 }
+
+export interface OnboardingTask {
+  id: string;
+  title: string;
+  done: boolean;
+  dueDate: string | null;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export interface ShiftTemplate {
+  id: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface ShiftAssignment {
+  id: string;
+  employeeId: string;
+  shiftTemplateId: string;
+  effectiveFrom: string;
+  shiftTemplate: ShiftTemplate;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export type TimesheetStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export interface TimesheetEntry {
+  id: string;
+  employeeId: string;
+  date: string;
+  hours: number;
+  task: string | null;
+  status: TimesheetStatus;
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}
+
+export interface CompensationRecord {
+  id: string;
+  employeeId: string;
+  effectiveFrom: string;
+  annualCTC: number;
+  monthlyGross: number;
+  currency: string;
+}
+
+export type PayrollRunStatus = "DRAFT" | "PROCESSED";
+
+export interface PayrollRun {
+  id: string;
+  month: number;
+  year: number;
+  status: PayrollRunStatus;
+  processedAt: string | null;
+}
+
+export interface Payslip {
+  id: string;
+  employeeId: string;
+  grossPay: number;
+  deductions: number;
+  netPay: number;
+  createdAt: string;
+  payrollRun?: { month: number; year: number; status: PayrollRunStatus };
+  employee?: { firstName: string; lastName: string; employeeCode: string };
+}

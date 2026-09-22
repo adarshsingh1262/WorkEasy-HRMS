@@ -10,6 +10,13 @@ import { PERMISSIONS } from "../../utils/permissions";
 const router = Router();
 router.use(requireAuth);
 
+const DEFAULT_ONBOARDING_TASKS = [
+  "Complete personal profile",
+  "Submit ID documents",
+  "IT / equipment setup",
+  "Meet your manager",
+];
+
 // Employee Directory (People > Employee Directory)
 router.get("/", requirePermission(PERMISSIONS.EMPLOYEE_READ), async (req, res) => {
   const { departmentId, search } = req.query as { departmentId?: string; search?: string };
@@ -117,6 +124,13 @@ router.post("/", requirePermission(PERMISSIONS.EMPLOYEE_WRITE), async (req, res)
         managerId: parsed.data.managerId,
         dateOfJoining: parsed.data.dateOfJoining,
       },
+    });
+    await tx.onboardingTask.createMany({
+      data: DEFAULT_ONBOARDING_TASKS.map((title) => ({
+        organizationId,
+        employeeId: employee.id,
+        title,
+      })),
     });
     return { user, employee };
   });
