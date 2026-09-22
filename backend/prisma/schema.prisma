@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  ONBOARDING
+  ON_LEAVE
+  EXITED
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  departments Department[]
+  employees   Employee[]
+  roles       Role[]
+
+  @@map("organizations")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  organizationId String
+  email        String
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  employee     Employee?
+  userRoles    UserRole[]
+
+  @@unique([organizationId, email])
+  @@map("users")
+}
+
+model Department {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  parentId       String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  parent       Department?  @relation("DepartmentHierarchy", fields: [parentId], references: [id])
+  children     Department[] @relation("DepartmentHierarchy")
+  employees    Employee[]
+
+  @@unique([organizationId, name])
+  @@map("departments")
+}
+
+model Employee {
+  id             String         @id @default(uuid())
+  organizationId String
+  userId         String         @unique
+  employeeCode   String
+  firstName      String
+  lastName       String
+  designation    String?
+  phone          String?
+  departmentId   String?
+  managerId      String?
+  dateOfJoining  DateTime?
+  status         EmployeeStatus @default(ONBOARDING)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department   Department?   @relation(fields: [departmentId], references: [id])
+  manager      Employee?     @relation("ManagerHierarchy", fields: [managerId], references: [id])
+  directReports Employee[]   @relation("ManagerHierarchy")
+
+  @@unique([organizationId, employeeCode])
+  @@map("employees")
+}
+
+model Role {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  isSystem       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+
+  @@unique([organizationId, name])
+  @@map("roles")
+}
+
+model Permission {
+  id          String @id @default(uuid())
+  key         String @unique
+  description String?
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
