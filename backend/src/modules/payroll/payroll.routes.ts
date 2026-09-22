@@ -96,7 +96,10 @@ router.post("/:id/process", requirePermission(PERMISSIONS.PAYROLL_MANAGE), async
         create: { organizationId, payrollRunId: run.id, employeeId: employee.id, grossPay, deductions, netPay },
         update: { grossPay, deductions, netPay },
       });
-      created.push(payslip);
+      created.push({
+        ...payslip,
+        employee: { firstName: employee.firstName, lastName: employee.lastName, employeeCode: employee.employeeCode },
+      });
     }
 
     const processedRun = await tx.payrollRun.update({

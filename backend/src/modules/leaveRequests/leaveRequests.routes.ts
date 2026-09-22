@@ -145,7 +145,7 @@ async function decide(req: Request, res: Response, approve: boolean) {
           employeeId: decided.employeeId,
           leaveTypeId: decided.leaveTypeId,
           year,
-          allocatedDays: 0,
+          allocatedDays: decided.leaveType.defaultDaysPerYear,
           usedDays: decided.days,
         },
         update: { usedDays: { increment: decided.days } },
