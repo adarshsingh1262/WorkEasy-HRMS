@@ -7,10 +7,10 @@ Multi-tenant SaaS HRMS (Zoho People / Razorpay X-Payroll class product).
 | Layer | Choice |
 |---|---|
 | Frontend | Next.js 14 (App Router, TypeScript), Tailwind CSS, shadcn/ui, TanStack Query, Zustand |
-| Backend | NestJS (TypeScript), REST + selective GraphQL for reporting |
+| Backend | Node.js + Express (TypeScript), REST API |
 | Database | PostgreSQL (primary, row-level multi-tenancy) + Redis (cache/queues/sessions) |
 | ORM | Prisma |
-| Auth | JWT (access+refresh) + NestJS Guards, OAuth2 (Google/Microsoft SSO), optional SAML for enterprise |
+| Auth | JWT (access+refresh) + Express middleware guards, OAuth2 (Google/Microsoft SSO via Passport.js), optional SAML for enterprise |
 | File storage | S3-compatible (documents, payslips, resumes) |
 | Background jobs | BullMQ (Redis) — payroll runs, attendance regularization, email/notification digests |
 | Search | Postgres full-text initially; Elasticsearch/Meilisearch if directory search scales |
@@ -105,7 +105,7 @@ Per your requirement, kept as a simple two-app layout instead of a Turborepo mon
 
 ```
 frontend/     # Next.js app (TypeScript, Tailwind, shadcn/ui)
-backend/      # NestJS app (modules mirror §4: attendance, leave, payroll, people, ...)
+backend/      # Node.js + Express app (routes/modules mirror §4: attendance, leave, payroll, people, ...)
   prisma/
     schema.prisma
 README.md
@@ -125,4 +125,4 @@ Shared DTOs/types are duplicated (or published as a small versioned npm package 
 
 ## 9. Immediate Next Step
 
-Scaffold Phase 0: `frontend/` (Next.js) + `backend/` (NestJS + Prisma + Postgres), auth module, Organization/Employee/Role Prisma models, and the People directory as the first working vertical slice.
+Scaffold Phase 0: `frontend/` (Next.js) + `backend/` (Node.js + Express + Prisma + PostgreSQL), auth module, Organization/Employee/Role Prisma models, and the People directory as the first working vertical slice.
