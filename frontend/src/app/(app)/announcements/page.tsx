@@ -35,7 +35,7 @@ export default function AnnouncementsPage() {
         {canManage && (
           <button
             onClick={() => setShowForm((v) => !v)}
-            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
             {showForm ? "Cancel" : "New announcement"}
           </button>
@@ -99,7 +99,7 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
         placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+        className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
       />
       <textarea
         required
@@ -107,13 +107,13 @@ function AnnouncementForm({ onCreated }: { onCreated: () => void }) {
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={4}
-        className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+        className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
       />
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
       >
         {submitting ? "Publishing…" : "Publish"}
       </button>

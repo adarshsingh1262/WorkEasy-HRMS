@@ -164,7 +164,7 @@ function ApprovalSection<T extends { id: string }>({
                 <div className="flex gap-2">
                   <button
                     onClick={() => onDecide(item.id, true)}
-                    className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"
+                    className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
                   >
                     Approve
                   </button>

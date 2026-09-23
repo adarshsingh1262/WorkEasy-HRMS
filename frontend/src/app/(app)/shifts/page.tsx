@@ -130,11 +130,11 @@ function TemplateForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-4">
       <h2 className="col-span-4 text-sm font-medium text-slate-500">New shift template</h2>
-      <input required placeholder="Name (e.g. Day Shift)" value={name} onChange={(e) => setName(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-2" />
-      <input required type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      <input required type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+      <input required placeholder="Name (e.g. Day Shift)" value={name} onChange={(e) => setName(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:col-span-2" />
+      <input required type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+      <input required type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
       {error && <p className="col-span-4 text-sm text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting} className="col-span-4 w-fit rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="col-span-4 w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
         {submitting ? "Creating…" : "Create template"}
       </button>
     </form>
@@ -176,7 +176,7 @@ function AssignForm({
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-4">
       <h2 className="col-span-4 text-sm font-medium text-slate-500">Assign employee to shift</h2>
-      <select required value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm">
+      <select required value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
         <option value="">Employee…</option>
         {employees.map((emp) => (
           <option key={emp.id} value={emp.id}>
@@ -184,7 +184,7 @@ function AssignForm({
           </option>
         ))}
       </select>
-      <select required value={shiftTemplateId} onChange={(e) => setShiftTemplateId(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm">
+      <select required value={shiftTemplateId} onChange={(e) => setShiftTemplateId(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
         <option value="">Shift template…</option>
         {templates.map((t) => (
           <option key={t.id} value={t.id}>
@@ -192,9 +192,9 @@ function AssignForm({
           </option>
         ))}
       </select>
-      <input required type="date" value={effectiveFrom} onChange={(e) => setEffectiveFrom(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+      <input required type="date" value={effectiveFrom} onChange={(e) => setEffectiveFrom(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
       {error && <p className="col-span-4 text-sm text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting} className="col-span-4 w-fit rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="col-span-4 w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
         {submitting ? "Assigning…" : "Assign"}
       </button>
     </form>

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { apiFetch, ApiError } from "@/lib/api";
 import { Employee, ExpenseClaim, LoanRequest, PayrollRun, Payslip } from "@/lib/types";
+import { StatusBadge } from "@/components/StatusBadge";
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
@@ -84,14 +85,14 @@ export default function PayrollPage() {
                     <p className="font-medium">
                       {MONTH_NAMES[run.month - 1]} {run.year}
                     </p>
-                    <p className="text-xs text-slate-500">{run.status}</p>
+                    <StatusBadge status={run.status} />
                   </div>
                   {run.status === "DRAFT" ? (
-                    <button onClick={() => processRun(run.id)} className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800">
+                    <button onClick={() => processRun(run.id)} className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700">
                       Process
                     </button>
                   ) : (
-                    <button onClick={() => viewPayslips(run.id)} className="text-xs font-medium text-slate-500 hover:underline">
+                    <button onClick={() => viewPayslips(run.id)} className="text-xs font-medium text-indigo-600 hover:underline">
                       View payslips
                     </button>
                   )}
@@ -148,10 +149,10 @@ export default function PayrollPage() {
                   </td>
                   <td className="px-4 py-2 text-slate-500">{e.category}</td>
                   <td className="px-4 py-2 text-slate-500">₹{e.amount.toLocaleString()}</td>
-                  <td className="px-4 py-2 text-slate-500">{e.status}</td>
+                  <td className="px-4 py-2"><StatusBadge status={e.status} /></td>
                   <td className="px-4 py-2 text-right">
                     {e.status === "APPROVED" && (
-                      <button onClick={() => markReimbursed(e.id)} className="text-xs font-medium text-slate-500 hover:underline">
+                      <button onClick={() => markReimbursed(e.id)} className="text-xs font-medium text-indigo-600 hover:underline">
                         Mark reimbursed
                       </button>
                     )}
@@ -190,7 +191,7 @@ export default function PayrollPage() {
                   </td>
                   <td className="px-4 py-2 text-slate-500">₹{l.amount.toLocaleString()}</td>
                   <td className="px-4 py-2 text-slate-500">{l.remainingAmount != null ? `₹${l.remainingAmount.toLocaleString()}` : "—"}</td>
-                  <td className="px-4 py-2 text-slate-500">{l.status}</td>
+                  <td className="px-4 py-2"><StatusBadge status={l.status} /></td>
                 </tr>
               ))}
               {loans.length === 0 && (
@@ -238,7 +239,7 @@ function CompensationForm({ employees }: { employees: Employee[] }) {
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-4">
       <h2 className="col-span-4 text-sm font-medium text-slate-500">Set compensation</h2>
-      <select required value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm sm:col-span-2">
+      <select required value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 sm:col-span-2">
         <option value="">Employee…</option>
         {employees.map((emp) => (
           <option key={emp.id} value={emp.id}>
@@ -246,11 +247,11 @@ function CompensationForm({ employees }: { employees: Employee[] }) {
           </option>
         ))}
       </select>
-      <input required type="date" value={effectiveFrom} onChange={(e) => setEffectiveFrom(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      <input required type="number" min="1" placeholder="Annual CTC" value={annualCTC} onChange={(e) => setAnnualCTC(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+      <input required type="date" value={effectiveFrom} onChange={(e) => setEffectiveFrom(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+      <input required type="number" min="1" placeholder="Annual CTC" value={annualCTC} onChange={(e) => setAnnualCTC(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
       {error && <p className="col-span-4 text-sm text-red-600">{error}</p>}
       {success && <p className="col-span-4 text-sm text-green-700">Compensation saved.</p>}
-      <button type="submit" disabled={submitting} className="col-span-4 w-fit rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="col-span-4 w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
         {submitting ? "Saving…" : "Save compensation"}
       </button>
     </form>
@@ -281,16 +282,16 @@ function NewRunForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-4">
       <h2 className="col-span-4 text-sm font-medium text-slate-500">Start a payroll run</h2>
-      <select value={month} onChange={(e) => setMonth(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm">
+      <select value={month} onChange={(e) => setMonth(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
         {MONTH_NAMES.map((m, i) => (
           <option key={m} value={i + 1}>
             {m}
           </option>
         ))}
       </select>
-      <input required type="number" value={year} onChange={(e) => setYear(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+      <input required type="number" value={year} onChange={(e) => setYear(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
       {error && <p className="col-span-4 text-sm text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting} className="col-span-4 w-fit rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="col-span-4 w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
         {submitting ? "Creating…" : "Create run"}
       </button>
     </form>

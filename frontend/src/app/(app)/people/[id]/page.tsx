@@ -23,7 +23,7 @@ export default function EmployeeProfilePage(props: PageProps<"/people/[id]">) {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <Link href="/people" className="text-sm text-slate-500 hover:underline">
+      <Link href="/people" className="text-sm text-indigo-600 hover:underline">
         ← Back to directory
       </Link>
       <h1 className="text-2xl font-semibold">

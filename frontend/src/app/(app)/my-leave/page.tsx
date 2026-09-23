@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { apiFetch, ApiError } from "@/lib/api";
 import { LeaveRequest, LeaveType } from "@/lib/types";
+import { StatusBadge } from "@/components/StatusBadge";
 
 export default function MyLeavePage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
@@ -40,7 +41,7 @@ export default function MyLeavePage() {
         <h1 className="text-2xl font-semibold">My Leave</h1>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
         >
           {showForm ? "Cancel" : "Request leave"}
         </button>
@@ -105,16 +106,6 @@ export default function MyLeavePage() {
   );
 }
 
-function StatusBadge({ status }: { status: LeaveRequest["status"] }) {
-  const styles: Record<LeaveRequest["status"], string> = {
-    PENDING: "bg-amber-100 text-amber-800",
-    APPROVED: "bg-green-100 text-green-800",
-    REJECTED: "bg-red-100 text-red-800",
-    CANCELLED: "bg-slate-100 text-slate-600",
-  };
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${styles[status]}`}>{status}</span>;
-}
-
 function LeaveRequestForm({ leaveTypes, onCreated }: { leaveTypes: LeaveType[]; onCreated: () => void }) {
   const [leaveTypeId, setLeaveTypeId] = useState(leaveTypes[0]?.id ?? "");
   const [startDate, setStartDate] = useState("");
@@ -148,7 +139,7 @@ function LeaveRequestForm({ leaveTypes, onCreated }: { leaveTypes: LeaveType[]; 
           required
           value={leaveTypeId}
           onChange={(e) => setLeaveTypeId(e.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
         >
           {leaveTypes.map((lt) => (
             <option key={lt.id} value={lt.id}>
@@ -160,21 +151,21 @@ function LeaveRequestForm({ leaveTypes, onCreated }: { leaveTypes: LeaveType[]; 
       <div />
       <label className="text-sm">
         <span className="mb-1 block font-medium text-slate-700">Start date</span>
-        <input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+        <input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
       </label>
       <label className="text-sm">
         <span className="mb-1 block font-medium text-slate-700">End date</span>
-        <input required type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+        <input required type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
       </label>
       <label className="col-span-2 text-sm">
         <span className="mb-1 block font-medium text-slate-700">Reason (optional)</span>
-        <input value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm" />
+        <input value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
       </label>
       {error && <p className="col-span-2 text-sm text-red-600">{error}</p>}
       <button
         type="submit"
         disabled={submitting || !leaveTypeId}
-        className="col-span-2 w-fit rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+        className="col-span-2 w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
       >
         {submitting ? "Submitting…" : "Submit request"}
       </button>

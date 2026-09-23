@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { apiFetch, ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { PerformanceReview } from "@/lib/types";
+import { StatusBadge } from "@/components/StatusBadge";
 
 export default function PerformancePage() {
   const { hasPermission } = useAuth();
@@ -40,7 +41,7 @@ export default function PerformancePage() {
         {canManage && (
           <button
             onClick={() => setShowCycleForm((v) => !v)}
-            className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
           >
             {showCycleForm ? "Cancel" : "New review cycle"}
           </button>
@@ -104,11 +105,11 @@ function CycleForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-3">
-      <input required placeholder="Cycle name (e.g. H2 2026)" value={name} onChange={(e) => setName(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      <input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
-      <input required type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm" />
+      <input required placeholder="Cycle name (e.g. H2 2026)" value={name} onChange={(e) => setName(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+      <input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+      <input required type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
       {error && <p className="col-span-3 text-sm text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting} className="col-span-3 w-fit rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="col-span-3 w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
         {submitting ? "Creating…" : "Create cycle (opens reviews for all active employees)"}
       </button>
     </form>
@@ -136,7 +137,7 @@ function MyReviewCard({ review, onUpdated }: { review: PerformanceReview; onUpda
     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="font-medium">{review.cycle.name}</p>
-        <span className="text-xs text-slate-500">{review.status}</span>
+        <StatusBadge status={review.status} />
       </div>
       {review.status === "COMPLETED" ? (
         <div className="mt-2 space-y-1 text-sm">
@@ -151,12 +152,12 @@ function MyReviewCard({ review, onUpdated }: { review: PerformanceReview; onUpda
             onChange={(e) => setSelfAssessment(e.target.value)}
             placeholder="Write your self-assessment…"
             rows={3}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           />
           <button
             onClick={submit}
             disabled={saving || !selfAssessment}
-            className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+            className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
           >
             {saving ? "Saving…" : "Submit self-assessment"}
           </button>
@@ -190,7 +191,7 @@ function TeamReviewCard({ review, onUpdated }: { review: PerformanceReview; onUp
         <p className="font-medium">
           {review.employee?.firstName} {review.employee?.lastName} · {review.cycle.name}
         </p>
-        <span className="text-xs text-slate-500">{review.status}</span>
+        <StatusBadge status={review.status} />
       </div>
       {review.selfAssessment && <p className="mt-2 text-sm text-slate-600">Self: {review.selfAssessment}</p>}
       {review.status === "COMPLETED" ? (
@@ -202,7 +203,7 @@ function TeamReviewCard({ review, onUpdated }: { review: PerformanceReview; onUp
             onChange={(e) => setManagerAssessment(e.target.value)}
             placeholder="Write your assessment…"
             rows={3}
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           />
           <div className="flex items-center gap-2">
             <label className="text-xs text-slate-500">Rating</label>
@@ -216,7 +217,7 @@ function TeamReviewCard({ review, onUpdated }: { review: PerformanceReview; onUp
             <button
               onClick={submit}
               disabled={saving || !managerAssessment}
-              className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+              className="rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
             >
               {saving ? "Saving…" : "Complete review"}
             </button>

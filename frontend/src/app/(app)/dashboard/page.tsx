@@ -48,7 +48,7 @@ export default function DashboardPage() {
       <div>
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-medium text-slate-500">Recent announcements</h2>
-          <Link href="/announcements" className="text-xs font-medium text-slate-500 hover:underline">
+          <Link href="/announcements" className="text-xs font-medium text-indigo-600 hover:underline">
             View all
           </Link>
         </div>
