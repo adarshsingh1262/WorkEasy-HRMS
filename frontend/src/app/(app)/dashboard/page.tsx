@@ -75,9 +75,9 @@ function Card({ title, description, href }: { title: string; description: string
   return (
     <Link
       href={href}
-      className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-400"
+      className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
     >
-      <h2 className="font-medium">{title}</h2>
+      <h2 className="font-medium text-slate-900">{title}</h2>
       <p className="mt-1 text-sm text-slate-500">{description}</p>
     </Link>
   );

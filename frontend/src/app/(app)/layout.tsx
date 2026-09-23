@@ -80,9 +80,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex flex-1">
-      <aside className="w-56 shrink-0 border-r border-slate-200 bg-white p-4">
-        <div className="mb-6 px-2 text-lg font-semibold">WorkEasy360</div>
+    <div className="flex flex-1 bg-slate-50">
+      <aside className="w-56 shrink-0 overflow-y-auto border-r border-slate-200 bg-white p-4">
+        <div className="mb-6 px-2 text-lg font-semibold text-indigo-600">WorkEasy360</div>
         <nav className="space-y-4">
           {NAV_GROUPS.map((group, i) => (
             <div key={i} className="space-y-1">
@@ -95,10 +95,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block rounded-md px-3 py-2 text-sm font-medium ${
+                  className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                     pathname.startsWith(item.href)
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-700 hover:bg-slate-100"
+                      ? "bg-indigo-600 text-white"
+                      : "text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
                   }`}
                 >
                   {item.label}
@@ -110,14 +110,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
-          <span className="text-sm text-slate-500">
+          <span className="text-sm font-medium text-slate-700">
             {user.employee ? `${user.employee.firstName} ${user.employee.lastName}` : user.email}
           </span>
-          <button onClick={logout} className="text-sm font-medium text-slate-500 hover:text-slate-900">
+          <button onClick={logout} className="text-sm font-medium text-slate-500 hover:text-indigo-600">
             Sign out
           </button>
         </header>
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6 text-slate-900">{children}</main>
       </div>
     </div>
   );
