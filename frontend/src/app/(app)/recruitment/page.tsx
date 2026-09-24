@@ -59,7 +59,7 @@ export default function RecruitmentPage() {
         <h1 className="text-2xl font-semibold">Recruitment</h1>
         <button
           onClick={() => setShowPostingForm((v) => !v)}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           {showPostingForm ? "Cancel" : "New job posting"}
         </button>
@@ -93,7 +93,7 @@ export default function RecruitmentPage() {
                     if (e.key === "Enter" || e.key === " ") setSelectedPostingId(p.id);
                   }}
                   className={`block w-full cursor-pointer rounded-lg border p-4 text-left shadow-sm transition ${
-                    selectedPostingId === p.id ? "border-slate-900" : "border-slate-200 hover:border-indigo-300 hover:shadow-md"
+                    selectedPostingId === p.id ? "border-slate-900" : "border-slate-200 hover:border-blue-300 hover:shadow-md"
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -108,7 +108,7 @@ export default function RecruitmentPage() {
                       e.stopPropagation();
                       toggleStatus(p);
                     }}
-                    className="mt-2 text-xs font-medium text-indigo-600 hover:underline"
+                    className="mt-2 text-xs font-medium text-blue-600 hover:underline"
                   >
                     Mark {p.status === "OPEN" ? "closed" : "open"}
                   </button>
@@ -123,7 +123,7 @@ export default function RecruitmentPage() {
                 {selectedPosting ? `Candidates — ${selectedPosting.title}` : "Candidates"}
               </h2>
               {selectedPosting && (
-                <button onClick={() => setShowCandidateForm((v) => !v)} className="text-xs font-medium text-indigo-600 hover:underline">
+                <button onClick={() => setShowCandidateForm((v) => !v)} className="text-xs font-medium text-blue-600 hover:underline">
                   {showCandidateForm ? "Cancel" : "+ Add candidate"}
                 </button>
               )}
@@ -197,9 +197,9 @@ function PostingForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <form onSubmit={onSubmit} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <input required placeholder="Job title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+      <input required placeholder="Job title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
       {departments.length > 0 && (
-        <select value={departmentId} onChange={(e) => setDepartmentId(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+        <select value={departmentId} onChange={(e) => setDepartmentId(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
           <option value="">No department</option>
           {departments.map((d) => (
             <option key={d.id} value={d.id}>
@@ -208,9 +208,9 @@ function PostingForm({ onCreated }: { onCreated: () => void }) {
           ))}
         </select>
       )}
-      <textarea required placeholder="Job description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+      <textarea required placeholder="Job description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting} className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
         {submitting ? "Posting…" : "Post job"}
       </button>
     </form>
@@ -249,7 +249,7 @@ function CandidateForm({ jobPostingId, onCreated }: { jobPostingId: string; onCr
       <input required type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="col-span-2 rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
       <input placeholder="Source (optional)" value={source} onChange={(e) => setSource(e.target.value)} className="col-span-2 rounded-md border border-slate-300 px-2 py-1.5 text-sm" />
       {error && <p className="col-span-2 text-xs text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting} className="col-span-2 w-fit rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="col-span-2 w-fit rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">
         {submitting ? "Adding…" : "Add candidate"}
       </button>
     </form>
@@ -311,7 +311,7 @@ function CandidateCard({
 
       {candidate.stage !== "HIRED" && (
         <div className="mt-3 flex flex-wrap gap-2">
-          <button onClick={() => setShowInterviewForm((v) => !v)} className="text-xs font-medium text-indigo-600 hover:underline">
+          <button onClick={() => setShowInterviewForm((v) => !v)} className="text-xs font-medium text-blue-600 hover:underline">
             Schedule interview
           </button>
           {candidate.stage === "OFFER" && (
@@ -382,7 +382,7 @@ function InterviewForm({
       </select>
       <input required type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} className="rounded-md border border-slate-300 px-2 py-1" />
       {error && <p className="col-span-2 text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting} className="col-span-2 w-fit rounded-md bg-indigo-600 px-3 py-1 font-medium text-white disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="col-span-2 w-fit rounded-md bg-blue-600 px-3 py-1 font-medium text-white disabled:opacity-50">
         {submitting ? "Scheduling…" : "Schedule"}
       </button>
     </form>
@@ -422,7 +422,7 @@ function HireForm({ candidateId, onHired }: { candidateId: string; onHired: () =
           Hired! Temporary password: <code className="rounded bg-white px-1">{tempPassword}</code>
         </p>
       )}
-      <button type="submit" disabled={submitting} className="w-fit rounded-md bg-indigo-600 px-3 py-1 font-medium text-white disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="w-fit rounded-md bg-blue-600 px-3 py-1 font-medium text-white disabled:opacity-50">
         {submitting ? "Hiring…" : "Confirm hire"}
       </button>
     </form>

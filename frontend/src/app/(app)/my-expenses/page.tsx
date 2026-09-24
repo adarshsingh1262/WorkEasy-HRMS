@@ -30,7 +30,7 @@ export default function MyExpensesPage() {
         <h1 className="text-2xl font-semibold">My Expenses</h1>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           {showForm ? "Cancel" : "New claim"}
         </button>
@@ -111,18 +111,18 @@ function ExpenseForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2">
-      <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+      <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
         <option value="Travel">Travel</option>
         <option value="Meals">Meals</option>
         <option value="Office Supplies">Office Supplies</option>
         <option value="Software">Software</option>
         <option value="Other">Other</option>
       </select>
-      <input required type="number" min="1" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-      <input required type="date" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-      <input placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+      <input required type="number" min="1" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
+      <input required type="date" value={expenseDate} onChange={(e) => setExpenseDate(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
+      <input placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
       {error && <p className="col-span-2 text-sm text-red-600">{error}</p>}
-      <button type="submit" disabled={submitting} className="col-span-2 w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+      <button type="submit" disabled={submitting} className="col-span-2 w-fit rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
         {submitting ? "Submitting…" : "Submit claim"}
       </button>
     </form>

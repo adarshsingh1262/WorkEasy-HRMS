@@ -5,6 +5,24 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Announcement } from "@/lib/types";
+import {
+  BarChart3,
+  Briefcase,
+  Building2,
+  CalendarDays,
+  CheckSquare,
+  Clock,
+  LifeBuoy,
+  Landmark,
+  ListChecks,
+  Receipt,
+  Target,
+  Timer,
+  User,
+  Users,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -28,27 +46,27 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card title="My Profile" description="View and manage your personal details." href="/my-profile" />
-        <Card title="My Attendance" description="Check in, check out, and view your history." href="/my-attendance" />
-        <Card title="My Leave" description="Request leave and track approvals." href="/my-leave" />
-        <Card title="My Timesheet" description="Log hours and track approval status." href="/my-timesheet" />
-        <Card title="My Tasks" description="Your onboarding checklist." href="/my-tasks" />
-        <Card title="My Payslips" description="View your salary payslips." href="/my-payslips" />
-        <Card title="My Goals" description="Track your goals and progress." href="/goals" />
-        <Card title="My Expenses" description="Submit and track expense claims." href="/my-expenses" />
-        <Card title="My Loans" description="Request a loan and track EMIs." href="/my-loans" />
-        <Card title="Recruitment" description="Manage job postings and candidates." href="/recruitment" />
-        <Card title="Employee Directory" description="Browse everyone in your organization." href="/people" />
-        <Card title="Approvals" description="Review pending leave and timesheet requests." href="/approvals" />
-        <Card title="Help Desk" description="Raise or track a support ticket." href="/helpdesk" />
-        <Card title="Reports" description="Headcount, attrition, leave and payroll cost." href="/reports" />
-        <Card title="Organization Settings" description="Manage your organization profile." href="/settings/organization" />
+        <Card icon={User} title="My Profile" description="View and manage your personal details." href="/my-profile" />
+        <Card icon={Clock} title="My Attendance" description="Check in, check out, and view your history." href="/my-attendance" />
+        <Card icon={CalendarDays} title="My Leave" description="Request leave and track approvals." href="/my-leave" />
+        <Card icon={Timer} title="My Timesheet" description="Log hours and track approval status." href="/my-timesheet" />
+        <Card icon={ListChecks} title="My Tasks" description="Your onboarding checklist." href="/my-tasks" />
+        <Card icon={Receipt} title="My Payslips" description="View your salary payslips." href="/my-payslips" />
+        <Card icon={Target} title="My Goals" description="Track your goals and progress." href="/goals" />
+        <Card icon={Wallet} title="My Expenses" description="Submit and track expense claims." href="/my-expenses" />
+        <Card icon={Landmark} title="My Loans" description="Request a loan and track EMIs." href="/my-loans" />
+        <Card icon={Briefcase} title="Recruitment" description="Manage job postings and candidates." href="/recruitment" />
+        <Card icon={Users} title="Employee Directory" description="Browse everyone in your organization." href="/people" />
+        <Card icon={CheckSquare} title="Approvals" description="Review pending leave and timesheet requests." href="/approvals" />
+        <Card icon={LifeBuoy} title="Help Desk" description="Raise or track a support ticket." href="/helpdesk" />
+        <Card icon={BarChart3} title="Reports" description="Headcount, attrition, leave and payroll cost." href="/reports" />
+        <Card icon={Building2} title="Organization Settings" description="Manage your organization profile." href="/settings/organization" />
       </div>
 
       <div>
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-medium text-slate-500">Recent announcements</h2>
-          <Link href="/announcements" className="text-xs font-medium text-indigo-600 hover:underline">
+          <Link href="/announcements" className="text-xs font-medium text-blue-600 hover:underline">
             View all
           </Link>
         </div>
@@ -71,14 +89,29 @@ export default function DashboardPage() {
   );
 }
 
-function Card({ title, description, href }: { title: string; description: string; href: string }) {
+function Card({
+  icon: Icon,
+  title,
+  description,
+  href,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  href: string;
+}) {
   return (
     <Link
       href={href}
-      className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
+      className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-300 hover:shadow-md"
     >
-      <h2 className="font-medium text-slate-900">{title}</h2>
-      <p className="mt-1 text-sm text-slate-500">{description}</p>
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+        <Icon className="h-5 w-5" strokeWidth={2} />
+      </div>
+      <div>
+        <h2 className="font-medium text-slate-900">{title}</h2>
+        <p className="mt-1 text-sm text-slate-500">{description}</p>
+      </div>
     </Link>
   );
 }

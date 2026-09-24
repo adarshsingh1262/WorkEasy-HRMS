@@ -41,7 +41,7 @@ export default function MyLeavePage() {
         <h1 className="text-2xl font-semibold">My Leave</h1>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           {showForm ? "Cancel" : "Request leave"}
         </button>
@@ -139,7 +139,7 @@ function LeaveRequestForm({ leaveTypes, onCreated }: { leaveTypes: LeaveType[]; 
           required
           value={leaveTypeId}
           onChange={(e) => setLeaveTypeId(e.target.value)}
-          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
         >
           {leaveTypes.map((lt) => (
             <option key={lt.id} value={lt.id}>
@@ -151,21 +151,21 @@ function LeaveRequestForm({ leaveTypes, onCreated }: { leaveTypes: LeaveType[]; 
       <div />
       <label className="text-sm">
         <span className="mb-1 block font-medium text-slate-700">Start date</span>
-        <input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+        <input required type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
       </label>
       <label className="text-sm">
         <span className="mb-1 block font-medium text-slate-700">End date</span>
-        <input required type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+        <input required type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
       </label>
       <label className="col-span-2 text-sm">
         <span className="mb-1 block font-medium text-slate-700">Reason (optional)</span>
-        <input value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
+        <input value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" />
       </label>
       {error && <p className="col-span-2 text-sm text-red-600">{error}</p>}
       <button
         type="submit"
         disabled={submitting || !leaveTypeId}
-        className="col-span-2 w-fit rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+        className="col-span-2 w-fit rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
       >
         {submitting ? "Submitting…" : "Submit request"}
       </button>
