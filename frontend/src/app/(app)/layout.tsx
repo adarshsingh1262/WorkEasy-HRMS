@@ -107,7 +107,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
+  const [groupOverrides, setGroupOverrides] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!loading && !user) {
@@ -119,16 +119,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return <div className="flex flex-1 items-center justify-center text-sm text-slate-500">Loading…</div>;
   }
 
-  function toggleGroup(title: string) {
-    setOpenGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(title)) {
-        next.delete(title);
-      } else {
-        next.add(title);
-      }
-      return next;
-    });
+  function toggleGroup(title: string, currentlyOpen: boolean) {
+    setGroupOverrides((prev) => ({ ...prev, [title]: !currentlyOpen }));
   }
 
   const activeItem = [...ALL_ITEMS].sort((a, b) => b.href.length - a.href.length).find((i) => pathname.startsWith(i.href));
@@ -156,12 +148,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             }
 
             const isActiveGroup = group.items.some((item) => pathname.startsWith(item.href));
-            const isOpen = isActiveGroup || openGroups.has(group.title);
+            const isOpen = groupOverrides[group.title] ?? isActiveGroup;
 
             return (
               <div key={i}>
                 <button
-                  onClick={() => toggleGroup(group.title!)}
+                  onClick={() => toggleGroup(group.title!, isOpen)}
                   className="flex w-full items-center justify-between rounded-md px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-200"
                 >
                   {group.title}
