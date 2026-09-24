@@ -13,6 +13,7 @@ import {
   CalendarClock,
   CalendarDays,
   CheckSquare,
+  ChevronDown,
   Clock,
   CreditCard,
   Home,
@@ -38,8 +39,9 @@ import {
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: LucideIcon };
+type NavGroup = { title?: string; items: NavItem[] };
 
-const NAV_GROUPS: { title?: string; items: NavItem[] }[] = [
+const NAV_GROUPS: NavGroup[] = [
   { items: [{ href: "/dashboard", label: "Home", icon: Home }] },
   {
     title: "My Workspace",
@@ -57,14 +59,12 @@ const NAV_GROUPS: { title?: string; items: NavItem[] }[] = [
     ],
   },
   {
+    title: "People",
     items: [
-      { href: "/people", label: "People", icon: Users },
+      { href: "/people", label: "Directory", icon: Users },
       { href: "/approvals", label: "Approvals", icon: CheckSquare },
+      { href: "/shifts", label: "Shifts", icon: CalendarClock },
     ],
-  },
-  {
-    title: "Time & Attendance",
-    items: [{ href: "/shifts", label: "Shifts", icon: CalendarClock }],
   },
   {
     title: "Talent",
@@ -74,21 +74,23 @@ const NAV_GROUPS: { title?: string; items: NavItem[] }[] = [
       { href: "/recruitment", label: "Recruitment", icon: Briefcase },
     ],
   },
-  { items: [{ href: "/assets", label: "Assets", icon: Package }] },
   {
     title: "HR Services",
     items: [
       { href: "/helpdesk", label: "Help Desk", icon: LifeBuoy },
       { href: "/announcements", label: "Announcements", icon: Megaphone },
       { href: "/hr-guide", label: "HR Guide", icon: BookOpen },
+      { href: "/assets", label: "Assets", icon: Package },
     ],
   },
   {
-    title: "Payroll",
-    items: [{ href: "/payroll", label: "Payroll", icon: CreditCard }],
+    title: "Payroll & Insights",
+    items: [
+      { href: "/payroll", label: "Payroll", icon: CreditCard },
+      { href: "/reports", label: "Reports", icon: BarChart3 },
+      { href: "/automation", label: "Automation", icon: Zap },
+    ],
   },
-  { items: [{ href: "/reports", label: "Reports", icon: BarChart3 }] },
-  { items: [{ href: "/automation", label: "Automation", icon: Zap }] },
   {
     title: "Settings",
     items: [
@@ -105,6 +107,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     if (!loading && !user) {
@@ -116,7 +119,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return <div className="flex flex-1 items-center justify-center text-sm text-slate-500">Loading…</div>;
   }
 
+  function toggleGroup(title: string) {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) {
+        next.delete(title);
+      } else {
+        next.add(title);
+      }
+      return next;
+    });
+  }
+
   const activeItem = [...ALL_ITEMS].sort((a, b) => b.href.length - a.href.length).find((i) => pathname.startsWith(i.href));
+  const activeGroup = NAV_GROUPS.find((g) => g.title && g.items.includes(activeItem!));
   const displayName = user.employee ? `${user.employee.firstName} ${user.employee.lastName}` : user.email;
   const initials = (user.employee ? `${user.employee.firstName[0]}${user.employee.lastName[0]}` : user.email[0]).toUpperCase();
 
@@ -127,37 +143,40 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">W</div>
           <span className="text-base font-semibold text-white">WorkEasy360</span>
         </div>
-        <nav className="flex-1 space-y-4">
-          {NAV_GROUPS.map((group, i) => (
-            <div key={i} className="space-y-0.5">
-              {group.title && (
-                <div className="px-3 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                  {group.title}
+        <nav className="flex-1 space-y-1">
+          {NAV_GROUPS.map((group, i) => {
+            if (!group.title) {
+              return (
+                <div key={i} className="space-y-0.5 pb-2">
+                  {group.items.map((item) => (
+                    <NavLink key={item.href} item={item} active={pathname.startsWith(item.href)} />
+                  ))}
                 </div>
-              )}
-              {group.items.map((item) => {
-                const isActive = pathname.startsWith(item.href);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`group flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-blue-600 text-white"
-                        : "text-slate-300 hover:bg-white/5 hover:text-white"
-                    }`}
-                  >
-                    <Icon
-                      className={`h-4 w-4 shrink-0 ${isActive ? "text-white" : "text-slate-400 group-hover:text-white"}`}
-                      strokeWidth={2}
-                    />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+              );
+            }
+
+            const isActiveGroup = group.items.some((item) => pathname.startsWith(item.href));
+            const isOpen = isActiveGroup || openGroups.has(group.title);
+
+            return (
+              <div key={i}>
+                <button
+                  onClick={() => toggleGroup(group.title!)}
+                  className="flex w-full items-center justify-between rounded-md px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-200"
+                >
+                  {group.title}
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? "" : "-rotate-90"}`} />
+                </button>
+                {isOpen && (
+                  <div className="space-y-0.5 pb-2">
+                    {group.items.map((item) => (
+                      <NavLink key={item.href} item={item} active={pathname.startsWith(item.href)} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
       </aside>
       <div className="flex flex-1 flex-col">
@@ -166,6 +185,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {activeItem && (
               <>
                 <activeItem.icon className="h-4 w-4 text-slate-400" strokeWidth={2} />
+                {activeGroup && <span>{activeGroup.title}</span>}
+                {activeGroup && <span className="text-slate-300">/</span>}
                 <span className="text-slate-900">{activeItem.label}</span>
               </>
             )}
@@ -212,5 +233,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 p-6 text-slate-900">{children}</main>
       </div>
     </div>
+  );
+}
+
+function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      className={`group flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+        active ? "bg-blue-600 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"
+      }`}
+    >
+      <Icon className={`h-4 w-4 shrink-0 ${active ? "text-white" : "text-slate-400 group-hover:text-white"}`} strokeWidth={2} />
+      {item.label}
+    </Link>
   );
 }
